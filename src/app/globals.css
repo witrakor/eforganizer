@@ -6578,3 +6578,28 @@ dialog.preview-workspace::backdrop {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Authenticated-only tools; a guest renders no bar or reserved space. */
+.public-admin-bar { position: sticky; top: 0; z-index: 80; background: #203139; color: #fff; font-size: 12px; }
+.public-admin-inner { max-width: 1240px; margin: auto; padding: 0 30px; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.public-admin-status { white-space: nowrap; color: #e4d5b1; }
+.public-admin-inner nav { display: flex; align-items: center; gap: 8px; }
+.public-admin-bar a, .public-admin-bar button { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 12px; border: 0; border-radius: 4px; background: transparent; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
+.public-admin-bar a:hover, .public-admin-bar button:hover { background: #ffffff18; }
+.public-admin-bar .public-admin-edit { background: #ffffff15; }
+.public-admin-bar :focus-visible { outline: 2px solid #e4d5b1; outline-offset: 2px; }
+.public-admin-bar button:disabled { opacity: .55; cursor: wait; }
+.public-admin-menu { position: relative; }
+.public-admin-dropdown { position: absolute; top: calc(100% + 6px); right: 0; width: 210px; padding: 8px; background: #203139; border: 1px solid #ffffff30; border-radius: 6px; box-shadow: 0 8px 24px #0002; }
+.public-admin-dropdown > button, .public-admin-dropdown > a { width: 100%; text-align: left; }
+.public-admin-bar .public-admin-mobile { display: none; }
+.public-admin-error { margin: 0; padding: 8px 24px; background: #742f32; }
+.public-admin-list-add { margin-top: 20px; padding: 10px 18px; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); color: white; cursor: pointer; }
+body:has(.public-admin-bar) .site-header { top: 44px; }
+body:has(.public-admin-bar) .detail-overview-summary { top: 154px; }
+@media (max-width: 700px) {
+  .public-admin-inner { padding-inline: 16px; gap: 8px; }
+  .public-admin-bar .public-admin-desktop { display: none; }
+  .public-admin-bar .public-admin-mobile { display: inline; }
+  .public-admin-inner nav { gap: 4px; }
+}

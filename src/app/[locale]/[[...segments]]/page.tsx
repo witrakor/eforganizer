@@ -1,3 +1,4 @@
+import PublicAdminBar from "@/components/public-admin-bar";
 import ContentBody from "@/components/content-body";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -93,6 +94,12 @@ export default async function Page({ params }: Props) {
 
   return (
     <>
+      <PublicAdminBar
+        key={page.id}
+        editHref={segments.length === 0 ? "/admin/settings" : page.kind !== "service" || services.some((service) => service.id === page.id) ? `/admin/content/${page.id}` : null}
+        kind={page.kind}
+        listKind={segments.length === 1 && segments[0] === "journal" ? "post" : segments.length === 1 && segments[0] === "work" ? "project" : null}
+      />
       <Header locale={l} />
       <main id="main-content">
         <ContentBody

@@ -211,6 +211,7 @@ export function PageIntro({
         <h1>{item[l].title}</h1>
         <p>{item[l].description}</p>
       </div>
+      <div id="public-admin-list-actions" />
     </section>
   );
 }

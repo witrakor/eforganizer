@@ -12,8 +12,8 @@ export { passwordHash, verifyPassword } from "./password";
 export async function currentAdmin() {
   const token = (await cookies()).get("ef_session")?.value;
   if (!token) return null;
-  const rows = await query<{ id: string; email: string }[]>(
-    "SELECT a.id,a.email FROM sessions s JOIN admins a ON s.admin_id=a.id WHERE s.token_hash=? AND s.expires_at>UTC_TIMESTAMP()",
+  const rows = await query<{ id: string; email: string; expiresAt: number }[]>(
+    "SELECT a.id,a.email,UNIX_TIMESTAMP(s.expires_at)*1000 AS expiresAt FROM sessions s JOIN admins a ON s.admin_id=a.id WHERE s.token_hash=? AND s.expires_at>UTC_TIMESTAMP()",
     [hash(token)],
   );
   return rows[0] ?? null;
