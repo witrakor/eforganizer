@@ -6482,6 +6482,7 @@ dialog.preview-workspace::backdrop {
   justify-content: start;
   max-width: 1188px;
   align-items: start;
+  padding-bottom: clamp(40px, 5vw, 72px);
 }
 .detail-overview-photo {
   position: relative;
