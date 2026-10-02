@@ -1,4 +1,8 @@
 "use client";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useAdminGuard } from "./admin-guard";
+import AdminDialog from "./admin-dialog";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -13,9 +17,20 @@ import { Brand } from "./site-header";
 export default function AdminNav() {
   const path = usePathname(),
     router = useRouter();
-  return (
-    <aside className="admin-sidebar">
-      <Link href="/admin">
+  const [open, setOpen] = useState(false);
+  const { confirmLeave } = useAdminGuard();
+  const navigation = (mobile = false) => (
+    <aside className="admin-sidebar" aria-label="เมนูจัดการ">
+      {mobile && (
+        <button
+          className="drawer-close"
+          onClick={() => setOpen(false)}
+          aria-label="ปิดเมนู"
+        >
+          <X />
+        </button>
+      )}
+      <Link href="/admin" onClick={() => setOpen(false)}>
         <Brand />
       </Link>
       <span className="studio-label">CONTENT STUDIO</span>
@@ -31,6 +46,16 @@ export default function AdminNav() {
           return (
             <Link
               href={href as string}
+              aria-current={
+                (
+                  href === "/admin"
+                    ? path === href
+                    : path.startsWith(href as string)
+                )
+                  ? "page"
+                  : undefined
+              }
+              onClick={() => setOpen(false)}
               className={
                 (
                   href === "/admin"
@@ -54,6 +79,7 @@ export default function AdminNav() {
         </Link>
         <button
           onClick={async () => {
+            if (!confirmLeave()) return;
             await fetch("/api/auth/logout", { method: "POST" });
             router.push("/admin/login");
             router.refresh();
@@ -63,5 +89,34 @@ export default function AdminNav() {
         </button>
       </div>
     </aside>
+  );
+  return (
+    <>
+      <div className="admin-mobile-bar">
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="เปิดเมนู"
+          aria-expanded={open}
+        >
+          <Menu size={22} />
+        </button>
+        <strong>
+          ELITE FLOW <small>CONTENT STUDIO</small>
+        </strong>
+        <Link href="/th" target="_blank" aria-label="ดูเว็บไซต์">
+          <ExternalLink size={20} />
+        </Link>
+      </div>
+      <div className="admin-desktop-nav">{navigation()}</div>
+      {open && (
+        <AdminDialog
+          label="เมนูจัดการ"
+          className="admin-drawer"
+          onClose={() => setOpen(false)}
+        >
+          {navigation(true)}
+        </AdminDialog>
+      )}
+    </>
   );
 }

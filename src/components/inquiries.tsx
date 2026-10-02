@@ -26,7 +26,20 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
   const [items, setItems] = useState(initial),
     [filter, setFilter] = useState("all"),
     [notice, setNotice] = useState("");
+  const [search, setSearch] = useState("");
+  const [busyId, setBusyId] = useState("");
+  const [failed, setFailed] = useState(false);
+  const visible = items.filter(
+    (i) =>
+      (filter === "all" || i.status === filter) &&
+      [i.name, i.email, i.phone, i.event_type, i.message]
+        .join(" ")
+        .toLowerCase()
+        .includes(search.trim().toLowerCase()),
+  );
   async function update(id: string, status: string) {
+    setBusyId(id);
+    setFailed(false);
     try {
       const r = await fetch(`/api/admin/inquiries/${id}`, {
         method: "PATCH",
@@ -37,7 +50,10 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
       setItems((v) => v.map((i) => (i.id === id ? { ...i, status } : i)));
       setNotice("อัปเดตสถานะเรียบร้อย");
     } catch {
+      setFailed(true);
       setNotice("อัปเดตไม่สำเร็จ กรุณาลองใหม่");
+    } finally {
+      setBusyId("");
     }
   }
   return (
@@ -49,7 +65,10 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
         </div>
       </div>
       {notice && (
-        <p className="save-notice" role="status">
+        <p
+          className={`save-notice ${failed ? "error" : ""}`}
+          role={failed ? "alert" : "status"}
+        >
           {notice}
         </p>
       )}
@@ -60,57 +79,76 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
             className={filter === key ? "selected" : ""}
             onClick={() => setFilter(key)}
           >
-            {label}
+            {label} (
+            {items.filter((i) => key === "all" || i.status === key).length})
           </button>
         ))}
       </div>
-      {items
-        .filter((i) => filter === "all" || i.status === filter)
-        .map((i) => (
-          <details className="inquiry-card" key={i.id}>
-            <summary>
-              <div>
-                <h3>{i.name}</h3>
-                <p>
-                  {i.event_type} · {bangkokDate(i.created_at)}
-                </p>
-              </div>
-              <span className={`badge ${i.status}`}>{labels[i.status]}</span>
-            </summary>
-            <div className="inquiry-body">
-              <div className="inquiry-data">
-                {[
-                  ["อีเมล", i.email],
-                  ["โทรศัพท์", i.phone],
-                  ["วันที่จัดงาน", i.event_date],
-                  ["สถานที่", i.location],
-                  ["จำนวนคน", i.guests],
-                  ["งบประมาณ", i.budget],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <small>{label}</small>
-                    {value || "—"}
-                  </div>
-                ))}
-              </div>
-              <p>{i.message}</p>
-              <label className="field-label">
-                สถานะ
-                <select
-                  value={i.status}
-                  onChange={(e) => update(i.id, e.target.value)}
-                >
-                  {Object.entries(labels).map(([k, v]) => (
-                    <option value={k} key={k}>
-                      {v}
-                    </option>
-                  ))}
-                </select>
-              </label>
+      <input
+        className="inquiry-search"
+        aria-label="ค้นหาข้อความ"
+        placeholder="ค้นหาชื่อ อีเมล โทรศัพท์ หรือรายละเอียดงาน…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      {visible.map((i) => (
+        <details className="inquiry-card" key={i.id}>
+          <summary>
+            <div>
+              <h3>{i.name}</h3>
+              <p>
+                {i.event_type} · {bangkokDate(i.created_at)}
+              </p>
             </div>
-          </details>
-        ))}
-      {!items.filter((i) => filter === "all" || i.status === filter).length && (
+            <span className={`badge ${i.status}`}>{labels[i.status]}</span>
+          </summary>
+          <div className="inquiry-body">
+            <div className="inquiry-data">
+              {[
+                ["อีเมล", i.email],
+                ["โทรศัพท์", i.phone],
+                ["วันที่จัดงาน", i.event_date],
+                ["สถานที่", i.location],
+                ["จำนวนคน", i.guests],
+                ["งบประมาณ", i.budget],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <small>{label}</small>
+                  {value ? (
+                    label === "อีเมล" ? (
+                      <a href={`mailto:${value}`}>{value}</a>
+                    ) : label === "โทรศัพท์" ? (
+                      <a href={`tel:${value.replace(/[^+0-9]/g, "")}`}>
+                        {value}
+                      </a>
+                    ) : (
+                      value
+                    )
+                  ) : (
+                    "—"
+                  )}
+                </div>
+              ))}
+            </div>
+            <p>{i.message}</p>
+            <label className="field-label">
+              สถานะ
+              <select
+                disabled={busyId === i.id}
+                value={i.status}
+                onChange={(e) => update(i.id, e.target.value)}
+              >
+                {Object.entries(labels).map(([k, v]) => (
+                  <option value={k} key={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </details>
+      ))}
+      {!visible.length && (
         <div className="admin-panel empty-state">ยังไม่มีข้อความในหมวดนี้</div>
       )}
     </>

@@ -1,4 +1,5 @@
 import DetailOverview from "./detail-overview";
+import { serviceMenuItems } from "@/lib/service-catalog";
 import type { ReactNode } from "react";
 import { contentDate } from "@/lib/date";
 import { EventCategories } from "./event-categories";
@@ -506,7 +507,7 @@ export function Home({
   return (
     <div className="home-page">
       <EventHero page={page} projects={projects} posts={posts} locale={l} />
-      <EventCategories locale={l} />
+      <EventCategories locale={l} items={serviceMenuItems(services)} />
       <section
         className="home-partner-band"
         aria-labelledby="home-partner-title"
@@ -525,15 +526,15 @@ export function Home({
           </strong>
           <div className="home-partner-copy">
             <h2 id="home-partner-title">
-              {text(
-                l,
+              {t(
+                "experienceTitle",
                 "ประสบการณ์ที่ลูกค้าไว้วางใจ",
                 "Experience our clients trust",
               )}
             </h2>
             <p id="home-partner-description">
-              {text(
-                l,
+              {t(
+                "experienceDescription",
                 "จากงานองค์กร ถึงวันสำคัญของครอบครัว",
                 "From corporate events to family celebrations.",
               )}
@@ -549,11 +550,11 @@ export function Home({
           <div className="home-trust-intro">
             <span className="eyebrow">OUR CLIENTS</span>
             <h2 id="home-trust-title">
-              {text(l, "ลูกค้าของเรา", "Our clients")}
+              {t("clientSectionTitle", "ลูกค้าของเรา", "Our clients")}
             </h2>
             <p className="home-trust-lead">
-              {text(
-                l,
+              {t(
+                "clientSectionDescription",
                 "ขอบคุณลูกค้า เจ้าภาพ และทีมผู้จัดงาน ที่มอบความไว้วางใจให้เราร่วมดูแลช่วงเวลาสำคัญ ตั้งแต่งานแต่งงานและวันพิเศษของครอบครัว ไปจนถึงงานองค์กรและกิจกรรมสาธารณะ",
                 "Thank you to the clients, hosts and event teams who have trusted us with their important occasions, from weddings and family celebrations to corporate events and public programmes.",
               )}

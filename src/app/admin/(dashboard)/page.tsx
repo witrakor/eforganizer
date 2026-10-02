@@ -1,3 +1,4 @@
+import { contentName } from "@/lib/admin-content";
 import Link from "next/link";
 import { bangkokDate } from "@/lib/date";
 import {
@@ -39,25 +40,68 @@ export default async function Page() {
             FileText,
             c.filter((i) => i.status === "published").length,
             "เนื้อหาที่เผยแพร่",
+            "/admin/content?status=published",
           ],
           [
             Briefcase,
             c.filter((i) => i.kind === "project").length,
             "ผลงานในระบบ",
+            "/admin/content?kind=project",
           ],
-          [ImageIcon, m.length, "ไฟล์และรูปภาพ"],
-          [Inbox, n[0].n, "ข้อความใหม่"],
-        ].map(([Icon, num, label]) => {
+          [ImageIcon, m.length, "ไฟล์และรูปภาพ", "/admin/media"],
+          [Inbox, n[0].n, "ข้อความใหม่", "/admin/inquiries"],
+        ].map(([Icon, num, label, href]) => {
           const I = Icon as typeof FileText;
           return (
-            <div className="stat-card" key={label as string}>
+            <Link
+              className="stat-card"
+              href={href as string}
+              key={label as string}
+            >
               <I size={21} />
               <strong>{num as number}</strong>
               <span>{label as string}</span>
-            </div>
+            </Link>
           );
         })}
       </div>
+      <section className="admin-panel">
+        <div className="admin-heading">
+          <div>
+            <h2>งานที่กำลังดูแล</h2>
+            <p>
+              ฉบับร่าง {c.filter((i) => i.status === "draft").length} รายการ ·
+              กลับมาแก้ไขต่อได้ทุกเมื่อ
+            </p>
+          </div>
+          <Link className="text-link" href="/admin/content?status=draft">
+            ดูฉบับร่างทั้งหมด ↗
+          </Link>
+        </div>
+        <div className="dashboard-recent">
+          {[...c]
+            .sort((a, b) =>
+              String(b.updatedAt || b.date).localeCompare(
+                String(a.updatedAt || a.date),
+              ),
+            )
+            .slice(0, 5)
+            .map((i) => (
+              <Link href={`/admin/content/${i.id}`} key={i.id}>
+                <div>
+                  <strong>{contentName(i)}</strong>
+                  <small>
+                    แก้ไขล่าสุด {bangkokDate(i.updatedAt || i.date)}
+                  </small>
+                </div>
+                <span className={`badge ${i.status}`}>
+                  {i.status === "published" ? "เผยแพร่แล้ว" : "ฉบับร่าง"}
+                </span>
+                <ArrowUpRight size={18} />
+              </Link>
+            ))}
+        </div>
+      </section>
       <section className="admin-panel">
         <h2>เริ่มจัดการเนื้อหา</h2>
         <p>

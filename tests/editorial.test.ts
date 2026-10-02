@@ -34,7 +34,19 @@ test("home selections preserve editorial ordering and never invent unavailable i
     selectedContent(home, "project", [a, b], 4).map((i) => i.id),
     [b.id, a.id],
   );
-  assert.equal(homeOrder(home).length, 10);
+  assert.deepEqual(
+    homeOrder(home).map((section) => section.id),
+    [
+      "work",
+      "process",
+      "team",
+      "testimonials",
+      "partners",
+      "journal",
+      "faq",
+      "contact",
+    ],
+  );
 });
 test("relationship content rejects executable links, missing published names and duplicate sections", () => {
   const c = sample();
@@ -132,7 +144,10 @@ test("CMS saves structured home data and retains previous versions without publi
   ]);
   const login = await fetch(base + "/api/auth/login", {
     method: "POST",
-    headers: { Origin: base, "Content-Type": "application/json" },
+    headers: {
+      Origin: process.env.TEST_ORIGIN || base,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       email: testAdminEmail,
       password: testAdminPassword,
@@ -141,7 +156,7 @@ test("CMS saves structured home data and retains previous versions without publi
   assert.equal(login.status, 200);
   const cookie = login.headers.get("set-cookie")!.split(";")[0];
   const headers = {
-    Origin: base,
+    Origin: process.env.TEST_ORIGIN || base,
     "Content-Type": "application/json",
     Cookie: cookie,
   };

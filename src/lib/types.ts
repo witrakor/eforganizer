@@ -18,6 +18,7 @@ export type Content = {
   status: "draft" | "published";
   image: string;
   gallery: string[];
+  coverOverride?: boolean;
   category: string;
   featured: boolean;
   sortOrder: number;

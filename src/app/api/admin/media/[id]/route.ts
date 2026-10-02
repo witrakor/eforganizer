@@ -1,3 +1,4 @@
+import { mediaUsage } from "@/lib/admin-content";
 import { currentAdmin, sameOrigin } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { contents } from "@/lib/content";
@@ -10,33 +11,18 @@ export async function PATCH(
   const { id } = await params;
   const data = await req.json();
   if (data.action === "trash") {
-    const refs = (await contents(undefined, true)).filter(
-      (c) =>
-        c.image === `/api/media/${id}` ||
-        c.gallery.includes(`/api/media/${id}`) ||
-        JSON.stringify([c.th, c.en, c.relationships]).includes(`/api/media/${id}`),
-    );
     const media = await query<{ url: string }[]>(
       "SELECT url FROM media WHERE id=?",
       [id],
     );
     if (media[0]) {
       const all = await contents(undefined, true);
-      if (
-        all.some(
-          (c) =>
-            c.image === media[0].url ||
-            c.gallery.includes(media[0].url) ||
-            JSON.stringify([c.th, c.en, c.relationships]).includes(media[0].url),
-        )
-      )
+      if (mediaUsage(all, media[0].url).length)
         return Response.json(
           { error: "รูปนี้ถูกใช้งานในเนื้อหา กรุณาเปลี่ยนรูปในหน้านั้นก่อน" },
           { status: 409 },
         );
     }
-    if (refs.length)
-      return Response.json({ error: "File is in use" }, { status: 409 });
     await query("UPDATE media SET deleted_at=UTC_TIMESTAMP() WHERE id=?", [id]);
   } else if (data.action === "restore")
     await query("UPDATE media SET deleted_at=NULL WHERE id=?", [id]);

@@ -3,6 +3,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Save, ArrowUpRight, ArrowLeft, ImagePlus, Eye } from "lucide-react";
 import type { Content, Locale } from "@/lib/types";
+import { useAdminGuard } from "./admin-guard";
+import { contentName, homeGroups } from "@/lib/admin-content";
+import { serviceCover } from "@/lib/service-catalog";
+import { homeEditorDefaults } from "@/lib/home-editor-defaults";
 import MediaPicker from "./media-picker";
 import dynamic from "next/dynamic";
 import HomeSettings from "./home-settings";
@@ -20,6 +24,13 @@ const fixed = [
   "privacy",
 ];
 const extraLabels: Record<string, string> = {
+  heroSubtitle: "หัวข้อรองเปิดหน้า",
+  heroDescription: "คำอธิบายเปิดหน้า",
+  experienceTitle: "หัวข้อประสบการณ์",
+  experienceDescription: "คำบรรยายประสบการณ์",
+  clientSectionTitle: "หัวข้อส่วนลูกค้า",
+  clientSectionDescription: "คำบรรยายส่วนลูกค้า",
+  eyebrow: "ข้อความเหนือหัวข้อ",
   storyTitle: "หัวข้อส่วนผลงานและความไว้วางใจ",
   storyLead: "ข้อความแนะนำประสบการณ์และบทบาทของทีม",
   storyDescription: "ข้อความก่อนลิงก์ไปหน้าผลงาน",
@@ -88,8 +99,46 @@ export default function ContentEditor({
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(""),
     [error, setError] = useState(false),
-    [picker, setPicker] = useState<"cover" | "gallery" | null>(null),
+    [picker, setPicker] = useState<"cover" | "gallery" | "team" | null>(null),
     [preview, setPreview] = useState(false);
+  const { setDirty: setGuardDirty } = useAdminGuard();
+  const [authExpired, setAuthExpired] = useState(false);
+  const [homeGroup, setHomeGroup] = useState("hero");
+  const isHome = value.kind === "page" && value.slug === "home";
+  const activeGroup = homeGroups.find((g) => g.id === homeGroup)!;
+  const [recovered, setRecovered] = useState<Content | null>(null);
+  const latest = useRef(value);
+  latest.current = value;
+  useEffect(() => {
+    setGuardDirty(dirty);
+    return () => setGuardDirty(false);
+  }, [dirty, setGuardDirty]);
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(`eliteflow-draft:${initial.id}`);
+      if (saved) {
+        const draft = JSON.parse(saved) as Content;
+        if (
+          draft.id === initial.id &&
+          JSON.stringify(draft) !== JSON.stringify(initial)
+        )
+          setRecovered(draft);
+      }
+    } catch {
+      /* Storage can be unavailable in private sessions. */
+    }
+  }, [initial]);
+  useEffect(() => {
+    if (!dirty) return;
+    try {
+      sessionStorage.setItem(
+        `eliteflow-draft:${value.id}`,
+        JSON.stringify(value),
+      );
+    } catch {
+      /* Navigation guard remains active when storage is full. */
+    }
+  }, [value, dirty]);
   const frame = useRef<HTMLIFrameElement>(null);
   const previewDialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -99,22 +148,28 @@ export default function ContentEditor({
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = overflow;
+      try {
+        sessionStorage.removeItem("eliteflow-preview");
+      } catch {}
     };
   }, [preview]);
-  const [previewWidth, setPreviewWidth] = useState("100%");
+  const [previewWidth, setPreviewWidth] = useState("1440px");
   const [sourceMode, setSourceMode] = useState(false);
   const [editorEpoch, setEditorEpoch] = useState(0);
   const [revisions, setRevisions] = useState<
     { version: number; savedAt: string; document: Content }[]
   >([]);
-  const sendPreview = useCallback(
-    () =>
-      frame.current?.contentWindow?.postMessage(
-        { type: "eliteflow-preview", content: value, locale },
-        window.location.origin,
-      ),
-    [value, locale],
-  );
+  const sendPreview = useCallback(() => {
+    const payload = { type: "eliteflow-preview", content: value, locale };
+    // The iframe may hydrate after its load event. Keep an initial snapshot
+    // available until its ready handshake can receive live updates.
+    if (frame.current) {
+      try {
+        sessionStorage.setItem("eliteflow-preview", JSON.stringify(payload));
+      } catch {}
+      frame.current.contentWindow?.postMessage(payload, window.location.origin);
+    }
+  }, [value, locale]);
   useEffect(() => {
     sendPreview();
   }, [sendPreview, preview]);
@@ -146,29 +201,41 @@ export default function ContentEditor({
   };
   const change = (key: string, v: string | string[]) =>
     update({ [locale]: { ...value[locale], [key]: v } });
-  useEffect(() => {
-    function before(e: BeforeUnloadEvent) {
-      if (dirty) {
-        e.preventDefault();
-      }
-    }
-    window.addEventListener("beforeunload", before);
-    return () => window.removeEventListener("beforeunload", before);
-  }, [dirty]);
   async function save() {
+    if (busy) return;
+    const submitted = value;
     setBusy(true);
     setError(false);
+    setAuthExpired(false);
     try {
       const r = await fetch(`/api/admin/content/${value.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(value),
       });
+      if (r.status === 401 || r.status === 403) {
+        setAuthExpired(true);
+        throw Error(
+          "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง แล้วกลับมากดบันทึก งานที่แก้ไขยังอยู่ในหน้านี้",
+        );
+      }
       const d = await r.json();
       if (!r.ok) throw Error(d.error || "บันทึกไม่สำเร็จ");
       setValue((v) => ({ ...v, version: d.version }));
-      setDirty(false);
-      setNotice("บันทึกเรียบร้อยแล้ว · เนื้อหาที่เผยแพร่จะแสดงบนเว็บไซต์ทันที");
+      const changedDuringSave = latest.current !== submitted;
+      setDirty(changedDuringSave);
+      if (!changedDuringSave) {
+        try {
+          sessionStorage.removeItem(`eliteflow-draft:${value.id}`);
+        } catch {}
+      }
+      setNotice(
+        changedDuringSave
+          ? "บันทึกแล้ว · ยังมีการแก้ไขใหม่ที่ยังไม่บันทึก"
+          : value.status === "published"
+            ? "อัปเดตเว็บไซต์เรียบร้อยแล้ว"
+            : "บันทึกฉบับร่างแล้ว · ยังไม่แสดงบนเว็บไซต์",
+      );
     } catch (e) {
       setNotice((e as Error).message);
       setError(true);
@@ -190,32 +257,23 @@ export default function ContentEditor({
               : `pages/${value.slug}`;
   const isFixed = value.kind === "page" && fixed.includes(initial.slug);
   const richBody = !isFixed || ["about", "privacy"].includes(value.slug);
-  const hasImage = !isFixed || ["home", "about"].includes(value.slug);
-  const hasGallery = !isFixed || value.slug === "home";
+  const hasImage = !isFixed || value.slug === "about";
+  const hasGallery = !isFixed || value.slug === "about";
   const hasItems = !isFixed || value.slug === "about";
   const c = value[locale];
   return (
     <>
-      <div className="admin-heading">
+      <div className="admin-heading editor-heading">
         <div>
           <Link
             href="/admin/content"
             className="text-link"
-            style={{ fontSize: 10, marginBottom: 12 }}
-            onClick={(e) => {
-              if (
-                dirty &&
-                !confirm(
-                  "มีการแก้ไขที่ยังไม่บันทึก ต้องการออกจากหน้านี้หรือไม่?",
-                )
-              )
-                e.preventDefault();
-            }}
+            style={{ marginBottom: 8 }}
           >
             <ArrowLeft size={12} />
             เนื้อหาทั้งหมด
           </Link>
-          <h1>{value.th.title || "เนื้อหาใหม่"}</h1>
+          <h1>{contentName(value)}</h1>
           <p>
             {dirty
               ? "มีการแก้ไขที่ยังไม่บันทึก"
@@ -239,7 +297,11 @@ export default function ContentEditor({
             disabled={busy}
           >
             <Save size={15} />
-            {busy ? "กำลังบันทึก…" : "บันทึก"}
+            {busy
+              ? "กำลังบันทึก…"
+              : value.status === "published"
+                ? "บันทึกและอัปเดตเว็บ"
+                : "บันทึกฉบับร่าง"}
           </button>
         </div>
       </div>
@@ -249,6 +311,41 @@ export default function ContentEditor({
           role={error ? "alert" : "status"}
         >
           {notice}
+          {authExpired && (
+            <Link className="text-link" href="/admin/login" target="_blank">
+              เข้าสู่ระบบในแท็บใหม่ ↗
+            </Link>
+          )}
+        </div>
+      )}
+      {recovered && (
+        <div className="draft-recovery" role="status">
+          <strong>พบงานที่ยังไม่ได้บันทึกในแท็บนี้</strong>
+          <p>
+            {recovered.version !== initial.version
+              ? "เว็บไซต์มีเวอร์ชันใหม่แล้ว กรุณาตรวจเทียบก่อนบันทึกงานที่กู้คืน"
+              : "คุณสามารถกลับมาแก้ไขต่อจากครั้งล่าสุดได้"}
+          </p>
+          <button
+            onClick={() => {
+              setValue({ ...recovered, version: initial.version });
+              setDirty(true);
+              setRecovered(null);
+              setEditorEpoch((n) => n + 1);
+            }}
+          >
+            กู้คืนการแก้ไข
+          </button>
+          <button
+            onClick={() => {
+              setRecovered(null);
+              try {
+                sessionStorage.removeItem(`eliteflow-draft:${initial.id}`);
+              } catch {}
+            }}
+          >
+            ทิ้งงานที่ค้างไว้
+          </button>
         </div>
       )}
       <div className="editor-layout">
@@ -273,57 +370,95 @@ export default function ContentEditor({
               <Eye size={13} /> ดูตัวอย่าง
             </button>
           </div>
+          {isHome && (
+            <label className="home-section-select field-label">
+              ส่วนที่ต้องการแก้ไข
+              <select
+                value={homeGroup}
+                onChange={(e) => setHomeGroup(e.target.value)}
+              >
+                {homeGroups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {isHome && (
+            <div className="home-section-nav" aria-label="ส่วนของหน้าแรก">
+              {homeGroups.map((g) => (
+                <button
+                  key={g.id}
+                  aria-pressed={homeGroup === g.id}
+                  className={homeGroup === g.id ? "selected" : ""}
+                  onClick={() => setHomeGroup(g.id)}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="editor-fields">
-            <label className="field-label">
-              หัวข้อหลัก / Title
-              <textarea
-                rows={2}
-                value={c.title}
-                onChange={(e) => change("title", e.target.value)}
-                style={{ minHeight: 70 }}
-                maxLength={200}
-              />
-            </label>
-            <label className="field-label">
-              ข้อความเหนือหัวข้อ / Eyebrow
-              <input
-                value={c.eyebrow}
-                onChange={(e) => change("eyebrow", e.target.value)}
-                maxLength={120}
-              />
-            </label>
-            <label className="field-label">
-              หัวข้อรอง / Subtitle
-              <input
-                value={c.subtitle}
-                onChange={(e) => change("subtitle", e.target.value)}
-                maxLength={300}
-              />
-            </label>
-            <label className="field-label">
-              คำอธิบายสั้น / Description
-              <textarea
-                rows={3}
-                value={c.description}
-                onChange={(e) => change("description", e.target.value)}
-                maxLength={2000}
-              />
-            </label>
-            {Object.keys(extraLabels)
+            {isHome && (
+              <div className="editor-section-heading">
+                <h2>{activeGroup.label}</h2>
+                <p>
+                  แก้ไขภาษา {locale === "th" ? "ไทย" : "อังกฤษ"}{" "}
+                  แล้วกดดูตัวอย่างก่อนบันทึก
+                </p>
+              </div>
+            )}
+            {(!isHome || homeGroup === "seo") && (
+              <>
+                <label className="field-label">
+                  {isHome
+                    ? "ชื่อหน้า / Title สำหรับข้อมูลหน้าเว็บ"
+                    : "หัวข้อหลัก / Title"}
+                  <textarea
+                    rows={2}
+                    value={c.title}
+                    onChange={(e) => change("title", e.target.value)}
+                    style={{ minHeight: 70 }}
+                    maxLength={200}
+                  />
+                </label>
+                {!isHome && (
+                  <>
+                    <label className="field-label">
+                      ข้อความเหนือหัวข้อ / Eyebrow
+                      <input
+                        value={c.eyebrow}
+                        onChange={(e) => change("eyebrow", e.target.value)}
+                        maxLength={120}
+                      />
+                    </label>
+                    <label className="field-label">
+                      หัวข้อรอง / Subtitle
+                      <input
+                        value={c.subtitle}
+                        onChange={(e) => change("subtitle", e.target.value)}
+                        maxLength={300}
+                      />
+                    </label>
+                  </>
+                )}
+                <label className="field-label">
+                  คำอธิบายสั้น / Description
+                  <textarea
+                    rows={3}
+                    value={c.description}
+                    onChange={(e) => change("description", e.target.value)}
+                    maxLength={2000}
+                  />
+                </label>
+              </>
+            )}
+            {(isHome ? activeGroup.keys : Object.keys(extraLabels))
               .filter(
                 (k) =>
-                  k in c ||
-                  (value.slug === "home" &&
-                    ![
-                      "phone",
-                      "email",
-                      "address",
-                      "facebook",
-                      "client",
-                      "venue",
-                      "role",
-                      "outcome",
-                    ].includes(k)) ||
+                  isHome ||
+                  (k !== "eyebrow" && k in c) ||
                   (value.kind === "project" &&
                     ["client", "venue", "role", "outcome"].includes(k)),
               )
@@ -331,13 +466,141 @@ export default function ContentEditor({
                 <label className="field-label" key={k}>
                   {extraLabels[k]}
                   <textarea
-                    rows={2}
+                    rows={
+                      k.includes("Description") || k.includes("Detail") ? 4 : 2
+                    }
                     style={{ minHeight: 65 }}
-                    value={String(c[k] || "")}
+                    value={String(
+                      c[k] ||
+                        (isHome ? homeEditorDefaults[k]?.[locale] : "") ||
+                        "",
+                    )}
                     onChange={(e) => change(k, e.target.value)}
                   />
                 </label>
               ))}
+            {isHome && homeGroup === "team" && (
+              <div className="field-label">
+                ภาพทีมงาน
+                <img
+                  className="home-team-editor-image"
+                  src={value.gallery[1] || "/media/team.webp"}
+                  alt="ภาพทีมงานบนหน้าแรก"
+                />
+                <button
+                  className="button button-small button-ghost"
+                  onClick={() => setPicker("team")}
+                >
+                  เปลี่ยนภาพทีมงาน
+                </button>
+              </div>
+            )}
+            {value.kind === "project" && (
+              <details className="project-facts" open>
+                <summary>วันที่จัดงานและที่มาข้อมูล</summary>
+                <div className="editor-fields">
+                  <label className="field-label">
+                    วันที่เริ่มงาน
+                    <input
+                      type="date"
+                      value={value.eventDate || ""}
+                      onChange={(e) =>
+                        update({ eventDate: e.target.value || undefined })
+                      }
+                    />
+                  </label>
+                  <label className="field-label">
+                    วันที่สิ้นสุดงาน (ถ้ามี)
+                    <input
+                      type="date"
+                      value={value.eventDateEnd || ""}
+                      min={value.eventDate}
+                      onChange={(e) =>
+                        update({ eventDateEnd: e.target.value || undefined })
+                      }
+                    />
+                  </label>
+                  {(value.sources || []).map((source, index) => (
+                    <fieldset className="source-fields" key={index}>
+                      <legend>แหล่งข้อมูล {index + 1}</legend>
+                      <label className="field-label">
+                        ชื่อแหล่งข้อมูล
+                        <input
+                          value={source.label}
+                          maxLength={200}
+                          onChange={(e) =>
+                            update({
+                              sources: value.sources!.map((s, i) =>
+                                i === index
+                                  ? { ...s, label: e.target.value }
+                                  : s,
+                              ),
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="field-label">
+                        ลิงก์ต้นฉบับ (https://)
+                        <input
+                          type="url"
+                          value={source.url}
+                          onChange={(e) =>
+                            update({
+                              sources: value.sources!.map((s, i) =>
+                                i === index ? { ...s, url: e.target.value } : s,
+                              ),
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="field-label">
+                        วันที่เผยแพร่ต้นฉบับ
+                        <input
+                          type="date"
+                          value={source.publishedAt}
+                          onChange={(e) =>
+                            update({
+                              sources: value.sources!.map((s, i) =>
+                                i === index
+                                  ? { ...s, publishedAt: e.target.value }
+                                  : s,
+                              ),
+                            })
+                          }
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          update({
+                            sources: value.sources!.filter(
+                              (_, i) => i !== index,
+                            ),
+                          })
+                        }
+                      >
+                        นำแหล่งข้อมูล {index + 1} ออก
+                      </button>
+                    </fieldset>
+                  ))}
+                  <button
+                    type="button"
+                    className="button button-small button-ghost"
+                    disabled={(value.sources?.length || 0) >= 30}
+                    onClick={() =>
+                      update({
+                        sources: [
+                          ...(value.sources || []),
+                          { url: "", label: "", publishedAt: value.date },
+                        ],
+                      })
+                    }
+                  >
+                    เพิ่มแหล่งข้อมูล
+                  </button>
+                </div>
+              </details>
+            )}
             {richBody && (
               <div className="field-label">
                 <div className="editor-body-heading">
@@ -368,17 +631,32 @@ export default function ContentEditor({
                 )}
               </div>
             )}
-            {value.slug === "home" && value.kind === "page" && (
-              <HomeSettings
-                value={value}
-                items={items}
-                locale={locale}
-                update={update}
-              />
-            )}
+            {isHome &&
+              ["hero", "clients", "proof", "work", "layout"].includes(
+                homeGroup,
+              ) && (
+                <HomeSettings
+                  section={
+                    homeGroup === "work"
+                      ? "selections"
+                      : (homeGroup as "hero" | "clients" | "proof" | "layout")
+                  }
+                  value={value}
+                  items={items}
+                  locale={locale}
+                  update={update}
+                />
+              )}
             {hasItems && (
               <label className="field-label">
-                รายการบริการ / จุดเด่น (หนึ่งรายการต่อบรรทัด)
+                {value.kind === "service"
+                  ? "ขอบเขตบริการ"
+                  : value.kind === "project"
+                    ? "สิ่งที่ทีมดูแล"
+                    : value.kind === "post"
+                      ? "ประเด็นสำคัญ"
+                      : "แนวทางทำงาน"}{" "}
+                (หนึ่งรายการต่อบรรทัด)
                 <textarea
                   rows={4}
                   value={c.items.join("\n")}
@@ -386,28 +664,30 @@ export default function ContentEditor({
                 />
               </label>
             )}
-            <details>
-              <summary>SEO — หัวข้อและคำอธิบายสำหรับการค้นหา</summary>
-              <div className="editor-fields" style={{ marginTop: 15 }}>
-                <label className="field-label">
-                  SEO title
-                  <input
-                    value={c.seoTitle}
-                    onChange={(e) => change("seoTitle", e.target.value)}
-                    maxLength={200}
-                  />
-                </label>
-                <label className="field-label">
-                  SEO description
-                  <textarea
-                    rows={3}
-                    value={c.seoDescription}
-                    onChange={(e) => change("seoDescription", e.target.value)}
-                    maxLength={500}
-                  />
-                </label>
-              </div>
-            </details>
+            {(!isHome || homeGroup === "seo") && (
+              <details open={isHome}>
+                <summary>SEO — หัวข้อและคำอธิบายสำหรับการค้นหา</summary>
+                <div className="editor-fields" style={{ marginTop: 15 }}>
+                  <label className="field-label">
+                    SEO title · {c.seoTitle.length}/200 ตัวอักษร
+                    <input
+                      value={c.seoTitle}
+                      onChange={(e) => change("seoTitle", e.target.value)}
+                      maxLength={200}
+                    />
+                  </label>
+                  <label className="field-label">
+                    SEO description · {c.seoDescription.length}/500 ตัวอักษร
+                    <textarea
+                      rows={3}
+                      value={c.seoDescription}
+                      onChange={(e) => change("seoDescription", e.target.value)}
+                      maxLength={500}
+                    />
+                  </label>
+                </div>
+              </details>
+            )}
           </div>
         </section>
         <aside className="editor-side">
@@ -437,56 +717,62 @@ export default function ContentEditor({
                 ภาษาอังกฤษตัวเล็ก ใช้ - แทนช่องว่าง
               </span>
             </label>
-            <label className="field-label">
-              วันที่
-              <input
-                type="date"
-                value={value.date}
-                onChange={(e) => update({ date: e.target.value })}
-              />
-            </label>
-            <label className="field-label">
-              ลำดับ
-              <input
-                type="number"
-                min={0}
-                max={9999}
-                value={value.sortOrder}
-                onChange={(e) => update({ sortOrder: Number(e.target.value) })}
-              />
-            </label>
-            {value.kind === "project" ? (
-              <label className="field-label">
-                หมวดบริการ
-                <select
-                  value={value.category}
-                  onChange={(e) => update({ category: e.target.value })}
-                >
-                  <option value="">ไม่ระบุ</option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.slug}>
-                      {s.th.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : (
-              <label className="field-label">
-                หมวดหมู่
-                <input
-                  value={value.category}
-                  onChange={(e) => update({ category: e.target.value })}
-                />
-              </label>
+            {!isFixed && (
+              <>
+                <label className="field-label">
+                  วันที่
+                  <input
+                    type="date"
+                    value={value.date}
+                    onChange={(e) => update({ date: e.target.value })}
+                  />
+                </label>
+                <label className="field-label">
+                  ลำดับ
+                  <input
+                    type="number"
+                    min={0}
+                    max={9999}
+                    value={value.sortOrder}
+                    onChange={(e) =>
+                      update({ sortOrder: Number(e.target.value) })
+                    }
+                  />
+                </label>
+                {value.kind === "project" ? (
+                  <label className="field-label">
+                    หมวดบริการ
+                    <select
+                      value={value.category}
+                      onChange={(e) => update({ category: e.target.value })}
+                    >
+                      <option value="">ไม่ระบุ</option>
+                      {services.map((s) => (
+                        <option key={s.id} value={s.slug}>
+                          {s.th.title}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : (
+                  <label className="field-label">
+                    หมวดหมู่
+                    <input
+                      value={value.category}
+                      onChange={(e) => update({ category: e.target.value })}
+                    />
+                  </label>
+                )}
+                <label className="check-label">
+                  <input
+                    type="checkbox"
+                    checked={value.featured}
+                    onChange={(e) => update({ featured: e.target.checked })}
+                  />
+                  แนะนำรายการนี้บนหน้าแรก
+                </label>
+              </>
             )}
-            <label className="check-label">
-              <input
-                type="checkbox"
-                checked={value.featured}
-                onChange={(e) => update({ featured: e.target.checked })}
-              />
-              แนะนำรายการนี้บนหน้าแรก
-            </label>
           </section>
           <section className="admin-panel">
             <h2>ประวัติการแก้ไข</h2>
@@ -522,7 +808,14 @@ export default function ContentEditor({
               <h2>ภาพหลัก</h2>
               {value.image && (
                 <div className="editor-cover">
-                  <img src={value.image} alt="ภาพหลัก" />
+                  <img
+                    src={
+                      value.kind === "service" && !value.coverOverride
+                        ? serviceCover(value.slug) || value.image
+                        : value.image
+                    }
+                    alt="ภาพหลัก"
+                  />
                 </div>
               )}
               <button
@@ -552,24 +845,59 @@ export default function ContentEditor({
               <h2>{value.slug === "home" ? "ภาพประกอบหน้าแรก" : "แกลเลอรี"}</h2>
               {value.slug === "home" && (
                 <p className="editor-help">
-                  รูปที่ 1: ภาพรอง Hero · รูปที่ 2: ภาพทีมงาน · รูปที่ 3:
-                  ภาพเบื้องหลังใน Hero
+                  รูปที่ 2 ใช้ในส่วนทีมงาน ·
+                  ภาพเปิดหน้าเลือกได้ในหมวดภาพเปิดหน้า
                 </p>
               )}
               <div className="gallery-editor">
                 {value.gallery.map((url, i) => (
-                  <button
-                    key={url}
-                    onClick={() =>
-                      update({
-                        gallery: value.gallery.filter((_, n) => n !== i),
-                      })
-                    }
-                    title="นำรูปออก"
-                  >
-                    <img src={url} alt={`Gallery ${i + 1}`} />
-                    <span>×</span>
-                  </button>
+                  <div className="gallery-item" key={url}>
+                    <img src={url} alt={`รูปที่ ${i + 1}`} loading="lazy" />
+                    <div>
+                      <button
+                        type="button"
+                        aria-label={`เลื่อนรูปที่ ${i + 1} ไปก่อนหน้า`}
+                        disabled={i === 0}
+                        onClick={() => {
+                          const gallery = [...value.gallery];
+                          [gallery[i - 1], gallery[i]] = [
+                            gallery[i],
+                            gallery[i - 1],
+                          ];
+                          update({ gallery });
+                        }}
+                      >
+                        ←
+                      </button>
+                      <span>{i + 1}</span>
+                      <button
+                        type="button"
+                        aria-label={`เลื่อนรูปที่ ${i + 1} ไปถัดไป`}
+                        disabled={i === value.gallery.length - 1}
+                        onClick={() => {
+                          const gallery = [...value.gallery];
+                          [gallery[i + 1], gallery[i]] = [
+                            gallery[i],
+                            gallery[i + 1],
+                          ];
+                          update({ gallery });
+                        }}
+                      >
+                        →
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`นำรูปที่ ${i + 1} ออกจากแกลเลอรี`}
+                        onClick={() =>
+                          update({
+                            gallery: value.gallery.filter((_, n) => n !== i),
+                          })
+                        }
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
               <button
@@ -596,7 +924,7 @@ export default function ContentEditor({
             <strong>ตัวอย่างก่อนบันทึก · {locale.toUpperCase()}</strong>
             <div>
               {[
-                ["100%", "Desktop"],
+                ["1440px", "Desktop"],
                 ["834px", "Tablet"],
                 ["390px", "Mobile"],
               ].map(([width, label]) => (
@@ -628,9 +956,22 @@ export default function ContentEditor({
       {picker && (
         <MediaPicker
           onClose={closePicker}
+          multiple={picker === "gallery"}
+          maxSelection={30 - value.gallery.length}
+          onSelectMany={(urls) => {
+            update({
+              gallery: [...new Set([...value.gallery, ...urls])].slice(0, 30),
+            });
+            setPicker(null);
+          }}
           onSelect={(url) => {
-            if (picker === "cover") update({ image: url });
-            else if (!value.gallery.includes(url))
+            if (picker === "cover") update({ image: url, coverOverride: true });
+            else if (picker === "team") {
+              const gallery = [...value.gallery];
+              if (!gallery[0]) gallery[0] = value.image || url;
+              gallery[1] = url;
+              update({ gallery });
+            } else if (!value.gallery.includes(url))
               update({ gallery: [...value.gallery, url] });
             setPicker(null);
           }}

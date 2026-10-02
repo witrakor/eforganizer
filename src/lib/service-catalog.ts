@@ -299,7 +299,20 @@ export function serviceMenuItems(services: Content[]): ServiceMenuItem[] {
   const known = new Set(serviceCategories.map((category) => category.slug));
   const extra = services.filter((service) => !known.has(service.slug));
   return [
-    ...serviceCategories,
+    ...serviceCategories.map((category) => {
+      const existing = services.find((s) => s.slug === category.slug);
+      return {
+        ...category,
+        th: {
+          title: existing?.th.title || category.th.title,
+          examples: existing?.th.subtitle || category.th.examples,
+        },
+        en: {
+          title: existing?.en.title || category.en.title,
+          examples: existing?.en.subtitle || category.en.examples,
+        },
+      };
+    }),
     ...extra.map((service) => {
       const specialist = specialistMenu[service.slug];
       return {
@@ -308,12 +321,12 @@ export function serviceMenuItems(services: Content[]): ServiceMenuItem[] {
         th: {
           title: service.th.title,
           examples:
-            specialist?.th || service.th.subtitle || service.th.description,
+            service.th.subtitle || specialist?.th || service.th.description,
         },
         en: {
           title: service.en.title,
           examples:
-            specialist?.en || service.en.subtitle || service.en.description,
+            service.en.subtitle || specialist?.en || service.en.description,
         },
       };
     }),
@@ -332,6 +345,7 @@ export function catalogServices(services: Content[]): Content[] {
       seoTitle: category[locale].title,
       seoDescription: category[locale].description,
       items: category[locale].items,
+      ...existing?.[locale],
     });
     return {
       id: existing?.id || `service-${category.slug}`,

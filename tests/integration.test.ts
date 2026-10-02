@@ -27,7 +27,7 @@ async function request(
   return fetch(base + path, {
     method,
     headers: {
-      Origin: base,
+      Origin: process.env.TEST_ORIGIN || base,
       ...(auth ? { Cookie: cookie } : {}),
       ...(body ? { "Content-Type": "application/json" } : {}),
     },
@@ -203,7 +203,7 @@ test("image upload, read, metadata, trash and restore", async () => {
   );
   const r = await fetch(base + "/api/admin/media", {
     method: "POST",
-    headers: { Origin: base, Cookie: cookie },
+    headers: { Origin: process.env.TEST_ORIGIN || base, Cookie: cookie },
     body: form,
   });
   assert.equal(r.status, 200);
@@ -243,7 +243,7 @@ test("image upload, read, metadata, trash and restore", async () => {
     (
       await fetch(base + "/api/admin/media", {
         method: "POST",
-        headers: { Origin: base, Cookie: cookie },
+        headers: { Origin: process.env.TEST_ORIGIN || base, Cookie: cookie },
         body: invalid,
       })
     ).status,

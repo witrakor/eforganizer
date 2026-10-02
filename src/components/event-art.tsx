@@ -147,17 +147,23 @@ export function EventHero({
           </div>
           <div className="signature-description">
             <p className="signature-lead">
-              {copy(
-                l,
-                "วางแผนอย่างเข้าใจ ดูแลอย่างใส่ใจ",
-                "Thoughtfully planned. Personally cared for.",
+              {String(
+                c.heroSubtitle ||
+                  copy(
+                    l,
+                    "วางแผนอย่างเข้าใจ ดูแลอย่างใส่ใจ",
+                    "Thoughtfully planned. Personally cared for.",
+                  ),
               )}
             </p>
             <p>
-              {copy(
-                l,
-                "รับจัดงานองค์กร งานแต่ง และกิจกรรมพิเศษ ตั้งแต่การวางแผน ประสานงาน ไปจนถึงดูแลหน้างาน ด้วยขอบเขตที่ชัดเจนร่วมกัน",
-                "Corporate events, weddings and special occasions. From planning and coordination to on-site care, with a scope shaped around your event.",
+              {String(
+                c.heroDescription ||
+                  copy(
+                    l,
+                    "รับจัดงานองค์กร งานแต่ง และกิจกรรมพิเศษ ตั้งแต่การวางแผน ประสานงาน ไปจนถึงดูแลหน้างาน ด้วยขอบเขตที่ชัดเจนร่วมกัน",
+                    "Corporate events, weddings and special occasions. From planning and coordination to on-site care, with a scope shaped around your event.",
+                  ),
               )}
             </p>
             <div className="signature-actions">

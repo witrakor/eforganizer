@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 export default function Login() {
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     router = useRouter();
@@ -45,11 +46,19 @@ export default function Login() {
         รหัสผ่าน
         <input
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           required
           autoComplete="current-password"
         />
       </label>
+      <button
+        type="button"
+        className="text-link"
+        aria-pressed={showPassword}
+        onClick={() => setShowPassword((v) => !v)}
+      >
+        {showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+      </button>
       {error && (
         <p role="alert" className="error-message">
           {error}

@@ -33,6 +33,7 @@ export const contentSchema = z
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     status: z.enum(["draft", "published"]),
     image: safeImage,
+    coverOverride: z.boolean().optional(),
     gallery: z.array(safeImage).max(30),
     category: z.string().max(100),
     featured: z.boolean(),

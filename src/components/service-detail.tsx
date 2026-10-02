@@ -25,7 +25,7 @@ export function ServiceDetail({
   const copy = item[locale];
   const th = locale === "th";
   const photos = eventPhotos(item);
-  const generatedCover = serviceCover(item.slug);
+  const generatedCover = item.coverOverride ? null : serviceCover(item.slug);
   return (
     <>
       <section className="container service-detail-intro">

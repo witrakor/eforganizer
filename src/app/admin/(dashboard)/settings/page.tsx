@@ -9,12 +9,24 @@ export default async function Page() {
     <>
       <div className="admin-heading">
         <div>
-          <h1>สถานะระบบ</h1>
+          <h1>ตั้งค่าเว็บไซต์</h1>
           <p>ข้อมูลการเชื่อมต่อและการตั้งค่าเว็บไซต์</p>
         </div>
       </div>
       <div className="admin-panel">
-        <h2>การเชื่อมต่อ</h2>
+        <h2>ข้อมูลติดต่อบนเว็บไซต์</h2>
+        <p>
+          แก้ไขโทรศัพท์ อีเมล ที่อยู่ และ Facebook ในเนื้อหาหน้าติดต่อ
+          ทั้งสองภาษา
+        </p>
+        {c && (
+          <Link className="button button-small" href={`/admin/content/${c.id}`}>
+            แก้ไขข้อมูลติดต่อ ↗
+          </Link>
+        )}
+      </div>
+      <details className="admin-panel">
+        <summary>รายละเอียดทางเทคนิค · ฐานข้อมูลและที่เก็บไฟล์</summary>
         <div className="system-list">
           <div>
             <span>ฐานข้อมูล</span>
@@ -45,17 +57,7 @@ export default async function Page() {
             <strong>{process.env.SITE_URL}</strong>
           </div>
         </div>
-      </div>
-      <div className="admin-panel">
-        <h2>ข้อมูลติดต่อบนเว็บไซต์</h2>
-        <p>
-          แก้ไขโทรศัพท์ อีเมล ที่อยู่ และ Facebook ในเนื้อหาหน้าติดต่อ
-          ทั้งสองภาษา
-        </p>
-        <Link className="button button-small" href={`/admin/content/${c?.id}`}>
-          แก้ไขข้อมูลติดต่อ ↗
-        </Link>
-      </div>
+      </details>
       <div className="admin-panel">
         <h2>การดูแลระบบ</h2>
         <p>

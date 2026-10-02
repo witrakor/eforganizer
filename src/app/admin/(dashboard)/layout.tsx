@@ -1,3 +1,5 @@
+import "../admin.css";
+import AdminGuard from "@/components/admin-guard";
 import Logout from "@/components/logout";
 import { requireAdmin } from "@/lib/auth";
 import AdminNav from "@/components/admin-nav";
@@ -13,18 +15,20 @@ export default async function Layout({
 }) {
   const admin = await requireAdmin();
   return (
-    <div className="admin-shell">
-      <AdminNav />
-      <div className="admin-main">
-        <div className="admin-topbar">
-          <strong>ELITE FLOW / CONTENT STUDIO</strong>
-          <div className="editor-top">
-            <span>{admin.email}</span>
-            <Logout />
+    <AdminGuard>
+      <div className="admin-shell">
+        <AdminNav />
+        <div className="admin-main">
+          <div className="admin-topbar">
+            <strong>ELITE FLOW / CONTENT STUDIO</strong>
+            <div className="editor-top">
+              <span>{admin.email}</span>
+              <Logout />
+            </div>
           </div>
+          {children}
         </div>
-        {children}
       </div>
-    </div>
+    </AdminGuard>
   );
 }
