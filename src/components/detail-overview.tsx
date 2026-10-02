@@ -7,10 +7,12 @@ export default function DetailOverview({
   image,
   title,
   children,
+  body,
 }: {
   image: string;
   title: string;
   children: ReactNode;
+  body: ReactNode;
 }) {
   const [photo, setPhoto] = useState({ src: image, ratio: 1.5 });
   const ratio = photo.src === image ? photo.ratio : 1.5;
@@ -40,6 +42,7 @@ export default function DetailOverview({
         </div>
       )}
       <div className="detail-overview-summary">{children}</div>
+      {body}
     </section>
   );
 }

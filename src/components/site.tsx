@@ -653,7 +653,58 @@ export function Detail({
           )}
         </div>
       )}
-      <DetailOverview image={item.image} title={c.title}>
+      <DetailOverview
+        image={item.image}
+        title={c.title}
+        body={
+          <section className="detail-story">
+            <div>
+              <Markdown body={c.body} />
+              {!!item.sources?.length && (
+                <details className="content-sources">
+                  <summary>
+                    {text(
+                      l,
+                      "ที่มาและวันที่โพสต์ต้นฉบับ",
+                      "Sources and original post dates",
+                    )}
+                  </summary>
+                  <ul>
+                    {item.sources.map((source) => (
+                      <li key={source.url}>
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {source.label}
+                        </a>{" "}
+                        ·{" "}
+                        <time dateTime={source.publishedAt}>
+                          {contentDate(source.publishedAt, l)}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              {c.items.length > 0 && (
+                <div className="scope-box">
+                  <span className="eyebrow">
+                    {text(l, "รูปแบบงานที่เราดูแล", "WHAT WE CAN HELP WITH")}
+                  </span>
+                  {c.items.map((i) => (
+                    <p key={i}>
+                      <Check size={17} />
+                      {i}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        }
+      >
         {item.kind === "project" && (
           <dl className="case-facts">
             {[
@@ -692,52 +743,6 @@ export function Detail({
           </Link>
         </aside>
       </DetailOverview>
-      <section className="container section detail-story">
-        <div>
-          <Markdown body={c.body} />
-          {!!item.sources?.length && (
-            <details className="content-sources">
-              <summary>
-                {text(
-                  l,
-                  "ที่มาและวันที่โพสต์ต้นฉบับ",
-                  "Sources and original post dates",
-                )}
-              </summary>
-              <ul>
-                {item.sources.map((source) => (
-                  <li key={source.url}>
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {source.label}
-                    </a>{" "}
-                    ·{" "}
-                    <time dateTime={source.publishedAt}>
-                      {contentDate(source.publishedAt, l)}
-                    </time>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-          {c.items.length > 0 && (
-            <div className="scope-box">
-              <span className="eyebrow">
-                {text(l, "รูปแบบงานที่เราดูแล", "WHAT WE CAN HELP WITH")}
-              </span>
-              {c.items.map((i) => (
-                <p key={i}>
-                  <Check size={17} />
-                  {i}
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
       {eventPhotos(item).length > 0 && (
         <section
           className="container section-tight detail-gallery"
