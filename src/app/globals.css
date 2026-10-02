@@ -624,10 +624,14 @@ select:focus-visible {
   overflow: hidden;
 }
 .journal-image img {
-  transition: transform 0.4s;
+  object-fit: contain;
+  object-position: center;
+}
+.journal-image {
+  background: #e8e6dd;
 }
 .journal-card:hover img {
-  transform: scale(1.03);
+  transform: none;
 }
 .journal-meta {
   display: flex;
@@ -809,10 +813,14 @@ select:focus-visible {
   border: 0;
 }
 .project-photo img {
-  transition: transform 0.4s;
+  object-fit: contain;
+  object-position: center;
+}
+.project-photo {
+  background: #e8e6dd;
 }
 .project-card:hover img {
-  transform: scale(1.03);
+  transform: none;
 }
 .project-caption {
   display: flex;
@@ -841,8 +849,13 @@ select:focus-visible {
   border-radius: 4px;
   overflow: hidden;
 }
+/* Content photographs retain the full frame, including portrait covers. */
 .detail-cover img {
-  object-position: center 40%;
+  object-fit: contain;
+  object-position: center;
+}
+.detail-cover {
+  background: #e8e6dd;
 }
 .detail-grid {
   display: grid;
@@ -5691,7 +5704,7 @@ dialog.preview-workspace::backdrop {
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #23392e;
+  background: #e8e6dd;
 }
 .hero-showcase-slide {
   position: absolute;
@@ -5704,8 +5717,8 @@ dialog.preview-workspace::backdrop {
   opacity: 1;
 }
 .hero-showcase-slide img {
-  object-fit: cover;
-  object-position: var(--photo-position);
+  object-fit: contain;
+  object-position: center;
 }
 .hero-showcase-tag {
   position: absolute;
@@ -5837,7 +5850,9 @@ dialog.preview-workspace::backdrop {
 .hero-editor-previews img {
   width: 100%;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center !important;
+  background: #e8e6dd;
 }
 .hero-editor-previews figure:last-child img {
   aspect-ratio: 4 / 3;
@@ -5874,7 +5889,7 @@ dialog.preview-workspace::backdrop {
     aspect-ratio: 3 / 2;
   }
   .hero-showcase-slide img {
-    object-position: var(--photo-mobile-position);
+    object-position: center;
   }
   .hero-showcase-tag {
     top: 14px;
@@ -5931,24 +5946,15 @@ dialog.preview-workspace::backdrop {
   }
 }
 
-/* Quiet hero captions: no separate colored band. */
+/* Keep captions and controls below the full photograph. */
 .hero-showcase {
   position: relative;
 }
-.hero-showcase-stage::after {
-  content: "";
-  position: absolute;
-  inset: 52% 0 0;
-  background: linear-gradient(transparent, #102319b8);
-  pointer-events: none;
-}
 .hero-showcase-bar {
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 2;
+  position: relative;
   justify-content: space-between;
-  background: transparent;
-  padding: 28px 32px;
+  background: var(--ink);
+  padding: 24px 32px;
 }
 .hero-showcase-story strong {
   font-size: 18px;
@@ -5993,9 +5999,6 @@ dialog.preview-workspace::backdrop {
 @media (max-width: 700px) {
   .hero-showcase-stage {
     aspect-ratio: 4 / 3;
-  }
-  .hero-showcase-stage::after {
-    inset: 35% 0 0;
   }
   .hero-showcase-bar {
     padding: 16px;
@@ -6072,7 +6075,7 @@ dialog.preview-workspace::backdrop {
 .home-trust-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 14px; }
 .home-trust-client { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: var(--ink); }
 .home-trust-portrait { position: relative; display: block; aspect-ratio: 1.2; overflow: hidden; border-radius: 4px; margin-bottom: 5px; background: #e8e5dc; }
-.home-trust-portrait img { object-fit: cover; }
+.home-trust-portrait img { object-fit: contain; object-position: center; }
 .home-trust-client:hover strong { color: #947a43; }
 .home-trust-client:focus-visible { outline: 2px solid #947a43; outline-offset: 5px; }
 .home-trust-client strong { font-size: 12px; font-weight: 600; line-height: 1.5; }
@@ -6400,7 +6403,7 @@ dialog.preview-workspace::backdrop {
 .service-detail-icon span { align-self: flex-start; font-size: 11px; letter-spacing: .18em; color: #6c806f; }
 .service-detail-icon svg { width: min(100%, 175px); height: auto; }
 .service-detail-photo { position: relative; min-width: 0; overflow: hidden; background: #deded3; }
-.service-detail-photo img { object-fit: cover; object-position: center 38%; }
+.service-detail-photo img { object-fit: contain; object-position: center; }
 .service-detail-photo-label { position: absolute; right: 18px; bottom: 18px; padding: 7px 10px; background: #1f3034b8; color: #fff; font-size: 10px; letter-spacing: .05em; }
 .service-detail-content { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: clamp(44px, 7vw, 120px); padding-top: 76px; padding-bottom: 80px; }
 .service-detail-content .eyebrow { color: #927b55; }
@@ -6414,8 +6417,8 @@ dialog.preview-workspace::backdrop {
 .service-detail-related-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .service-detail-related-grid > a { min-width: 0; }
 .service-detail-related-image { position: relative; aspect-ratio: 1.5; overflow: hidden; background: #e4e6df; }
-.service-detail-related-image img { object-fit: cover; transition: transform .25s ease; }
-.service-detail-related-grid > a:hover img { transform: scale(1.04); }
+.service-detail-related-image img { object-fit: contain; object-position: center; }
+.service-detail-related-grid > a:hover img { transform: none; }
 .service-detail-related-grid > a > span { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; font-weight: 600; border-bottom: 1px solid var(--line); }
 .service-detail-back { padding-bottom: 80px; }
 .service-detail-back a { display: inline-flex; align-items: center; gap: 9px; border-bottom: 1px solid #a8ad9f; padding-bottom: 5px; }
