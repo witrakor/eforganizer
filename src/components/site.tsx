@@ -653,19 +653,21 @@ export function Detail({
           )}
         </div>
       )}
-      {item.image && (
-        <div className="container detail-cover">
-          <Image
-            src={item.image}
-            fill
-            sizes="(max-width: 1150px) 100vw, 1150px"
-            priority
-            alt={c.title}
-          />
-        </div>
-      )}
-      <section className="container section detail-grid">
-        <div>
+      <section
+        className={`container detail-overview${item.image ? "" : " detail-overview-no-image"}`}
+      >
+        {item.image && (
+          <div className="detail-overview-photo">
+            <Image
+              src={item.image}
+              fill
+              sizes="(max-width: 900px) 100vw, (max-width: 1200px) 65vw, 760px"
+              preload
+              alt={c.title}
+            />
+          </div>
+        )}
+        <div className="detail-overview-summary">
           {item.kind === "project" && (
             <dl className="case-facts">
               {[
@@ -683,6 +685,30 @@ export function Detail({
                 ))}
             </dl>
           )}
+          <aside className="detail-aside">
+            <span className="eyebrow">LET’S TALK</span>
+            <h3>
+              {text(l, "มีงานแบบนี้ในใจ?", "Planning something like this?")}
+            </h3>
+            <p>
+              {text(
+                l,
+                "ส่งโจทย์ให้ทีมช่วยวางแผนและประเมินขอบเขตที่เหมาะกับคุณ",
+                "Share your brief. We will help shape a scope that fits your event.",
+              )}
+            </p>
+            <Link
+              className="button"
+              href={`/${l}/contact${item.kind === "service" ? `?service=${item.slug}` : item.category ? `?service=${item.category}` : ""}`}
+            >
+              {text(l, "ปรึกษาการจัดงาน", "Discuss your event")}
+              <ArrowUpRight size={16} />
+            </Link>
+          </aside>
+        </div>
+      </section>
+      <section className="container section detail-story">
+        <div>
           <Markdown body={c.body} />
           {!!item.sources?.length && (
             <details className="content-sources">
@@ -726,26 +752,6 @@ export function Detail({
             </div>
           )}
         </div>
-        <aside className="detail-aside">
-          <span className="eyebrow">LET’S TALK</span>
-          <h3>
-            {text(l, "มีงานแบบนี้ในใจ?", "Planning something like this?")}
-          </h3>
-          <p>
-            {text(
-              l,
-              "ส่งโจทย์ให้ทีมช่วยวางแผนและประเมินขอบเขตที่เหมาะกับคุณ",
-              "Share your brief. We will help shape a scope that fits your event.",
-            )}
-          </p>
-          <Link
-            className="button"
-            href={`/${l}/contact${item.kind === "service" ? `?service=${item.slug}` : item.category ? `?service=${item.category}` : ""}`}
-          >
-            {text(l, "ปรึกษาการจัดงาน", "Discuss your event")}
-            <ArrowUpRight size={16} />
-          </Link>
-        </aside>
       </section>
       {eventPhotos(item).length > 0 && (
         <section

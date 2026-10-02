@@ -6468,3 +6468,76 @@ dialog.preview-workspace::backdrop {
     background-position: right 22px bottom;
   }
 }
+
+/* Detail photographs and the event summary share the opening row. */
+.detail-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.detail-overview-photo {
+  position: relative;
+  min-width: 0;
+}
+.detail-overview-photo img {
+  /* Override fill positioning so the frame follows the photograph's ratio. */
+  position: relative !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100%;
+  max-height: 620px;
+  display: block;
+  object-fit: contain;
+  object-position: left top;
+  border-radius: 4px;
+}
+.detail-overview-summary {
+  min-width: 0;
+}
+.detail-overview-summary .case-facts {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  overflow-wrap: anywhere;
+}
+.detail-overview-summary .detail-aside {
+  position: static;
+}
+.detail-overview-summary .button {
+  max-width: 100%;
+  white-space: normal;
+}
+.detail-overview-no-image {
+  grid-template-columns: minmax(0, 1fr);
+}
+.detail-overview-no-image .detail-overview-summary {
+  max-width: 760px;
+}
+.detail-story {
+  padding-top: 48px;
+}
+.detail-story > div {
+  max-width: 760px;
+}
+@media (max-width: 900px) {
+  .detail-overview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .detail-overview-photo img {
+    max-height: min(620px, 75svh);
+  }
+  .detail-overview-summary .case-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .detail-story {
+    padding-top: 36px;
+  }
+}
+@media (max-width: 500px) {
+  .detail-overview-summary .case-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
