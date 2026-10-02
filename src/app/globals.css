@@ -6469,27 +6469,29 @@ dialog.preview-workspace::backdrop {
   }
 }
 
-/* Detail photographs and the event summary share the opening row. */
+/* Keep the story and its photographs on one consistent reading axis. */
+.detail-page > .container {
+  max-width: 1188px;
+}
+
+/* The image ratio sizes the photo column, bringing the summary alongside it. */
 .detail-overview {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
-  gap: clamp(28px, 4vw, 64px);
+  grid-template-columns: minmax(0, min(800px, calc(680px * var(--cover-ratio, 1.5)))) minmax(280px, 340px);
+  gap: clamp(28px, 3vw, 48px);
+  justify-content: start;
+  max-width: 1188px;
   align-items: start;
 }
 .detail-overview-photo {
   position: relative;
   min-width: 0;
+  width: 100%;
+  aspect-ratio: var(--cover-ratio, 1.5);
 }
 .detail-overview-photo img {
-  /* Override fill positioning so the frame follows the photograph's ratio. */
-  position: relative !important;
-  width: auto !important;
-  height: auto !important;
-  max-width: 100%;
-  max-height: 620px;
-  display: block;
   object-fit: contain;
-  object-position: left top;
+  object-position: center;
   border-radius: 4px;
 }
 .detail-overview-summary {
@@ -6526,8 +6528,9 @@ dialog.preview-workspace::backdrop {
     grid-template-columns: minmax(0, 1fr);
     gap: 32px;
   }
-  .detail-overview-photo img {
-    max-height: min(620px, 75svh);
+  .detail-overview-photo {
+    max-width: min(100%, calc(680px * var(--cover-ratio, 1.5)));
+    justify-self: center;
   }
   .detail-overview-summary .case-facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));

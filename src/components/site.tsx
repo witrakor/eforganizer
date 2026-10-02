@@ -1,3 +1,4 @@
+import DetailOverview from "./detail-overview";
 import type { ReactNode } from "react";
 import { contentDate } from "@/lib/date";
 import { EventCategories } from "./event-categories";
@@ -538,7 +539,6 @@ export function Home({
               )}
             </p>
           </div>
-
         </div>
       </section>
       <section
@@ -632,7 +632,7 @@ export function Detail({
 }) {
   const c = item[l];
   return (
-    <>
+    <div className="detail-page">
       <PageIntro item={item} locale={l} />
       {(item.kind === "project" || item.kind === "post") && (
         <div className="container publication-meta">
@@ -653,60 +653,45 @@ export function Detail({
           )}
         </div>
       )}
-      <section
-        className={`container detail-overview${item.image ? "" : " detail-overview-no-image"}`}
-      >
-        {item.image && (
-          <div className="detail-overview-photo">
-            <Image
-              src={item.image}
-              fill
-              sizes="(max-width: 900px) 100vw, (max-width: 1200px) 65vw, 760px"
-              preload
-              alt={c.title}
-            />
-          </div>
+      <DetailOverview image={item.image} title={c.title}>
+        {item.kind === "project" && (
+          <dl className="case-facts">
+            {[
+              ["client", "ลูกค้า / องค์กร", "Client / organization"],
+              ["venue", "สถานที่", "Location"],
+              ["role", "บทบาทของทีม", "Our role"],
+              ["outcome", "ผลลัพธ์", "Outcome"],
+            ]
+              .filter(([key]) => c[key])
+              .map(([key, th, en]) => (
+                <div key={key}>
+                  <dt>{text(l, th, en)}</dt>
+                  <dd>{c[key]}</dd>
+                </div>
+              ))}
+          </dl>
         )}
-        <div className="detail-overview-summary">
-          {item.kind === "project" && (
-            <dl className="case-facts">
-              {[
-                ["client", "ลูกค้า / องค์กร", "Client / organization"],
-                ["venue", "สถานที่", "Location"],
-                ["role", "บทบาทของทีม", "Our role"],
-                ["outcome", "ผลลัพธ์", "Outcome"],
-              ]
-                .filter(([key]) => c[key])
-                .map(([key, th, en]) => (
-                  <div key={key}>
-                    <dt>{text(l, th, en)}</dt>
-                    <dd>{c[key]}</dd>
-                  </div>
-                ))}
-            </dl>
-          )}
-          <aside className="detail-aside">
-            <span className="eyebrow">LET’S TALK</span>
-            <h3>
-              {text(l, "มีงานแบบนี้ในใจ?", "Planning something like this?")}
-            </h3>
-            <p>
-              {text(
-                l,
-                "ส่งโจทย์ให้ทีมช่วยวางแผนและประเมินขอบเขตที่เหมาะกับคุณ",
-                "Share your brief. We will help shape a scope that fits your event.",
-              )}
-            </p>
-            <Link
-              className="button"
-              href={`/${l}/contact${item.kind === "service" ? `?service=${item.slug}` : item.category ? `?service=${item.category}` : ""}`}
-            >
-              {text(l, "ปรึกษาการจัดงาน", "Discuss your event")}
-              <ArrowUpRight size={16} />
-            </Link>
-          </aside>
-        </div>
-      </section>
+        <aside className="detail-aside">
+          <span className="eyebrow">LET’S TALK</span>
+          <h3>
+            {text(l, "มีงานแบบนี้ในใจ?", "Planning something like this?")}
+          </h3>
+          <p>
+            {text(
+              l,
+              "ส่งโจทย์ให้ทีมช่วยวางแผนและประเมินขอบเขตที่เหมาะกับคุณ",
+              "Share your brief. We will help shape a scope that fits your event.",
+            )}
+          </p>
+          <Link
+            className="button"
+            href={`/${l}/contact${item.kind === "service" ? `?service=${item.slug}` : item.category ? `?service=${item.category}` : ""}`}
+          >
+            {text(l, "ปรึกษาการจัดงาน", "Discuss your event")}
+            <ArrowUpRight size={16} />
+          </Link>
+        </aside>
+      </DetailOverview>
       <section className="container section detail-story">
         <div>
           <Markdown body={c.body} />
@@ -819,7 +804,7 @@ export function Detail({
         </section>
       )}
       <CTA locale={l} />
-    </>
+    </div>
   );
 }
 export function Contact({
