@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.env*
+!.env.example
+LOCAL-ACCESS.txt
+storage/
+*.tsbuildinfo
+scripts/assets.json
+test-results/
+playwright-report/
+.playwright-cli/
+output/
+.DS_Store

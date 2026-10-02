@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env*
+LOCAL-ACCESS.txt
+storage
+test-results
+playwright-report
+docs
+scripts/assets.json
+scripts/inspect-assets.mjs
+scripts/prepare-media.mjs

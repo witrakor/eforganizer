@@ -1,0 +1,594 @@
+{
+  "date": "2026-10-01",
+  "url": "http://localhost:3100",
+  "desktop": [
+    {
+      "path": "/th",
+      "status": 200,
+      "title": "ทุกงานสำคัญ ให้เป็นไปอย่างลงตัว | Elite Flow",
+      "h1": "ทุกงานสำคัญ\nให้เป็นไปอย่างลงตัว",
+      "images": 23,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en",
+      "status": 200,
+      "title": "Great events. Beautifully in flow. | Elite Flow",
+      "h1": "Great events.\nBeautifully in flow.",
+      "images": 23,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/about",
+      "status": 200,
+      "title": "เบื้องหลังงานที่ลงตัว คือทีมที่ใส่ใจ | Elite Flow",
+      "h1": "เบื้องหลังงานที่ลงตัว\nคือทีมที่ใส่ใจ",
+      "images": 9,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/about",
+      "status": 200,
+      "title": "Behind every great event, a team that cares. | Elite Flow",
+      "h1": "Behind every great event,\na team that cares.",
+      "images": 9,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services",
+      "status": 200,
+      "title": "ทุกโอกาสสำคัญ เราพร้อมดูแล | Elite Flow",
+      "h1": "ทุกโอกาสสำคัญ\nเราพร้อมดูแล",
+      "images": 7,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services",
+      "status": 200,
+      "title": "Your occasion. Our expertise. | Elite Flow",
+      "h1": "Your occasion.\nOur expertise.",
+      "images": 7,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/work",
+      "status": 200,
+      "title": "ประสบการณ์จริง ในทุกบทบาทของทีม | Elite Flow",
+      "h1": "ประสบการณ์จริง\nในทุกบทบาทของทีม",
+      "images": 5,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/work",
+      "status": 200,
+      "title": "Real moments. Hands-on experience. | Elite Flow",
+      "h1": "Real moments.\nHands-on experience.",
+      "images": 5,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/journal",
+      "status": 200,
+      "title": "เรื่องน่ารู้ ก่อนวันสำคัญ | Elite Flow",
+      "h1": "เรื่องน่ารู้\nก่อนวันสำคัญ",
+      "images": 4,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/journal",
+      "status": 200,
+      "title": "Good ideas. Better-prepared events. | Elite Flow",
+      "h1": "Good ideas.\nBetter-prepared events.",
+      "images": 4,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/contact",
+      "status": 200,
+      "title": "เล่างานที่คุณคิดไว้ ให้เราฟัง | Elite Flow",
+      "h1": "เล่างานที่คุณคิดไว้\nให้เราฟัง",
+      "images": 1,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/contact",
+      "status": 200,
+      "title": "Have something in mind? Let’s talk. | Elite Flow",
+      "h1": "Have something in mind?\nLet’s talk.",
+      "images": 1,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/privacy",
+      "status": 200,
+      "title": "ความเป็นส่วนตัว | Elite Flow",
+      "h1": "ความเป็นส่วนตัว",
+      "images": 0,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/privacy",
+      "status": 200,
+      "title": "Privacy | Elite Flow",
+      "h1": "Privacy",
+      "images": 0,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services/meetings-conferences",
+      "status": 200,
+      "title": "งานประชุมและสัมมนา | Elite Flow",
+      "h1": "งานประชุมและสัมมนา",
+      "images": 8,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services/meetings-conferences",
+      "status": 200,
+      "title": "Meetings & Conferences | Elite Flow",
+      "h1": "Meetings & Conferences",
+      "images": 8,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services/ceremonies-launches",
+      "status": 200,
+      "title": "งานพิธีการและเปิดตัว | Elite Flow",
+      "h1": "งานพิธีการและเปิดตัว",
+      "images": 8,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services/ceremonies-launches",
+      "status": 200,
+      "title": "Ceremonies & Launches | Elite Flow",
+      "h1": "Ceremonies & Launches",
+      "images": 8,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services/corporate-celebrations",
+      "status": 200,
+      "title": "งานเลี้ยงและกิจกรรมองค์กร | Elite Flow",
+      "h1": "งานเลี้ยงและกิจกรรมองค์กร",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services/corporate-celebrations",
+      "status": 200,
+      "title": "Corporate Celebrations | Elite Flow",
+      "h1": "Corporate Celebrations",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services/exhibitions-activations",
+      "status": 200,
+      "title": "นิทรรศการและกิจกรรมแบรนด์ | Elite Flow",
+      "h1": "นิทรรศการและกิจกรรมแบรนด์",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services/exhibitions-activations",
+      "status": 200,
+      "title": "Exhibitions & Activations | Elite Flow",
+      "h1": "Exhibitions & Activations",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services/weddings-private-events",
+      "status": 200,
+      "title": "งานแต่งและงานส่วนตัว | Elite Flow",
+      "h1": "งานแต่งและงานส่วนตัว",
+      "images": 11,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services/weddings-private-events",
+      "status": 200,
+      "title": "Weddings & Private Events | Elite Flow",
+      "h1": "Weddings & Private Events",
+      "images": 11,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/services/special-events",
+      "status": 200,
+      "title": "งานประกวดและกิจกรรมพิเศษ | Elite Flow",
+      "h1": "งานประกวดและกิจกรรมพิเศษ",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/services/special-events",
+      "status": 200,
+      "title": "Special Events & Shows | Elite Flow",
+      "h1": "Special Events & Shows",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/work/sme-reboost",
+      "status": 200,
+      "title": "SME Reboost 2569 | Elite Flow",
+      "h1": "SME Reboost 2569",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/work/sme-reboost",
+      "status": 200,
+      "title": "SME Reboost 2026 | Elite Flow",
+      "h1": "SME Reboost 2026",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/work/isan-creative",
+      "status": 200,
+      "title": "เทศกาลอีสานสร้างสรรค์ | Elite Flow",
+      "h1": "เทศกาลอีสานสร้างสรรค์",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/work/isan-creative",
+      "status": 200,
+      "title": "Isan Creative Festival | Elite Flow",
+      "h1": "Isan Creative Festival",
+      "images": 6,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/work/miss-universe-khon-kaen",
+      "status": 200,
+      "title": "Miss Universe Khon Kaen | Elite Flow",
+      "h1": "Miss Universe Khon Kaen",
+      "images": 5,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/work/miss-universe-khon-kaen",
+      "status": 200,
+      "title": "Miss Universe Khon Kaen | Elite Flow",
+      "h1": "Miss Universe Khon Kaen",
+      "images": 5,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/work/min-chat-wedding",
+      "status": 200,
+      "title": "Min & Chat — Wedding Day | Elite Flow",
+      "h1": "Min & Chat — Wedding Day",
+      "images": 11,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/work/min-chat-wedding",
+      "status": 200,
+      "title": "Min & Chat — Wedding Day | Elite Flow",
+      "h1": "Min & Chat — Wedding Day",
+      "images": 11,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/journal/a-better-event-brief",
+      "status": 200,
+      "title": "เริ่มต้นจัดงาน ด้วยบรีฟที่ชัดเจน | Elite Flow",
+      "h1": "เริ่มต้นจัดงาน ด้วยบรีฟที่ชัดเจน",
+      "images": 2,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/journal/a-better-event-brief",
+      "status": 200,
+      "title": "A clearer brief. A better beginning. | Elite Flow",
+      "h1": "A clearer brief. A better beginning.",
+      "images": 2,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/journal/conference-preparation",
+      "status": 200,
+      "title": "เตรียมงานสัมมนา ให้ทุกช่วงเชื่อมต่อกัน | Elite Flow",
+      "h1": "เตรียมงานสัมมนา ให้ทุกช่วงเชื่อมต่อกัน",
+      "images": 2,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/journal/conference-preparation",
+      "status": 200,
+      "title": "Make every conference transition count. | Elite Flow",
+      "h1": "Make every conference transition count.",
+      "images": 2,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/th/journal/wedding-first-steps",
+      "status": 200,
+      "title": "วางแผนวันแต่ง ให้มีพื้นที่สำหรับความสุข | Elite Flow",
+      "h1": "วางแผนวันแต่ง ให้มีพื้นที่สำหรับความสุข",
+      "images": 2,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "path": "/en/journal/wedding-first-steps",
+      "status": 200,
+      "title": "Make room for joy on your wedding day. | Elite Flow",
+      "h1": "Make room for joy on your wedding day.",
+      "images": 2,
+      "broken": [],
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "mobile": {
+    "result": [
+      {
+        "locale": "th",
+        "gallery": "open, arrows, Escape, focus restoration passed",
+        "language": "same-page switch passed",
+        "filter": "passed"
+      },
+      {
+        "locale": "en",
+        "gallery": "open, arrows, Escape, focus restoration passed",
+        "language": "same-page switch passed",
+        "filter": "passed"
+      }
+    ],
+    "mobile": [
+      {
+        "path": "/th",
+        "overflow": false
+      },
+      {
+        "path": "/en",
+        "overflow": false
+      },
+      {
+        "path": "/th/about",
+        "overflow": false
+      },
+      {
+        "path": "/en/about",
+        "overflow": false
+      },
+      {
+        "path": "/th/services",
+        "overflow": false
+      },
+      {
+        "path": "/en/services",
+        "overflow": false
+      },
+      {
+        "path": "/th/work",
+        "overflow": false
+      },
+      {
+        "path": "/en/work",
+        "overflow": false
+      },
+      {
+        "path": "/th/journal",
+        "overflow": false
+      },
+      {
+        "path": "/en/journal",
+        "overflow": false
+      },
+      {
+        "path": "/th/contact",
+        "overflow": false
+      },
+      {
+        "path": "/en/contact",
+        "overflow": false
+      },
+      {
+        "path": "/th/privacy",
+        "overflow": false
+      },
+      {
+        "path": "/en/privacy",
+        "overflow": false
+      },
+      {
+        "path": "/th/services/meetings-conferences",
+        "overflow": false
+      },
+      {
+        "path": "/en/services/meetings-conferences",
+        "overflow": false
+      },
+      {
+        "path": "/th/services/ceremonies-launches",
+        "overflow": false
+      },
+      {
+        "path": "/en/services/ceremonies-launches",
+        "overflow": false
+      },
+      {
+        "path": "/th/services/corporate-celebrations",
+        "overflow": false
+      },
+      {
+        "path": "/en/services/corporate-celebrations",
+        "overflow": false
+      },
+      {
+        "path": "/th/services/exhibitions-activations",
+        "overflow": false
+      },
+      {
+        "path": "/en/services/exhibitions-activations",
+        "overflow": false
+      },
+      {
+        "path": "/th/services/weddings-private-events",
+        "overflow": false
+      },
+      {
+        "path": "/en/services/weddings-private-events",
+        "overflow": false
+      },
+      {
+        "path": "/th/services/special-events",
+        "overflow": false
+      },
+      {
+        "path": "/en/services/special-events",
+        "overflow": false
+      },
+      {
+        "path": "/th/work/sme-reboost",
+        "overflow": false
+      },
+      {
+        "path": "/en/work/sme-reboost",
+        "overflow": false
+      },
+      {
+        "path": "/th/work/isan-creative",
+        "overflow": false
+      },
+      {
+        "path": "/en/work/isan-creative",
+        "overflow": false
+      },
+      {
+        "path": "/th/work/miss-universe-khon-kaen",
+        "overflow": false
+      },
+      {
+        "path": "/en/work/miss-universe-khon-kaen",
+        "overflow": false
+      },
+      {
+        "path": "/th/work/min-chat-wedding",
+        "overflow": false
+      },
+      {
+        "path": "/en/work/min-chat-wedding",
+        "overflow": false
+      },
+      {
+        "path": "/th/journal/a-better-event-brief",
+        "overflow": false
+      },
+      {
+        "path": "/en/journal/a-better-event-brief",
+        "overflow": false
+      },
+      {
+        "path": "/th/journal/conference-preparation",
+        "overflow": false
+      },
+      {
+        "path": "/en/journal/conference-preparation",
+        "overflow": false
+      },
+      {
+        "path": "/th/journal/wedding-first-steps",
+        "overflow": false
+      },
+      {
+        "path": "/en/journal/wedding-first-steps",
+        "overflow": false
+      }
+    ],
+    "menu": "passed"
+  },
+  "build": "passed",
+  "integrationTests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "independentDesignReview": {
+    "rounds": 2,
+    "verdict": "Polished modern luxury direction; final image crop corrected."
+  }
+}

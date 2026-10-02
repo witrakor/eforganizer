@@ -1,0 +1,20 @@
+services:
+  web:
+    image: eliteflow:local
+    container_name: eliteflow-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3000"
+    env_file: .env.docker.local
+    environment:
+      SHOW_DESIGN_PREVIEW: "true"
+    volumes:
+      - eliteflow_uploads:/app/storage/uploads
+    networks:
+      - eliteflow_default
+volumes:
+  eliteflow_uploads:
+    external: true
+networks:
+  eliteflow_default:
+    external: true

@@ -1,0 +1,49 @@
+{
+  "name": "eliteflow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 -p 3100",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 -p 3100",
+    "typecheck": "tsc --noEmit",
+    "db:init": "node --env-file=.env.local --import tsx scripts/init-db.ts",
+    "test": "node --env-file=.env.local --import tsx --test tests/*.test.ts",
+    "storage:migrate": "node --env-file=.env.local --import tsx scripts/migrate-media-r2.ts",
+    "admin:reset-password": "node --env-file=.env.local --import tsx scripts/reset-admin-password.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1144.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource/ibm-plex-sans-thai": "^5.3.0",
+    "@tiptap/extension-image": "^3.31.4",
+    "@tiptap/extension-table": "^3.31.4",
+    "@tiptap/markdown": "^3.31.4",
+    "@tiptap/react": "^3.31.4",
+    "@tiptap/starter-kit": "^3.31.4",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.49.0",
+    "mysql2": "^3.24.5",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}

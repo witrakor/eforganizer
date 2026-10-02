@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 190" fill="none">
+  <g stroke="#947a50" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- A compact venue sketch: stage, lighting truss and exhibition booth. -->
+    <path d="M109 40h201v85H109zM115 46h189M115 40v85m189-85v85M115 46l13-6 13 6 13-6 13 6 13-6 13 6 13-6 13 6 13-6 13 6 13-6 13 6 13-6"/>
+    <path d="M140 64h139v55H140zM140 119l-21 14h180l-20-14M119 133v6h180v-6M190 139v5h53v-5m-61 5v5h69v-5"/>
+    <path d="M202 116V94h14v22m-17-22h20m-10 0V83l5-3"/>
+    <path d="M148 46v6m-5 0h11v7h-11zm120-6v6m-5 0h11v7h-11zM182 46v6m-5 0h11v7h-11zm48-6v6m-5 0h11v7h-11z"/>
+    <path d="M147 61l-15 41m21-41 20 41m89-41-20 41m26-41 15 41" stroke-opacity=".45"/>
+    <path d="M32 79h57v53H32zM27 79v-9h67v9M39 88h43v24H39zM29 121h63v15H29zM35 136v5m51-5v5"/>
+    <path d="M334 70v67m7-67v67m-7-67 7 13-7 13 7 13-7 13 7 13m-14 2h21M327 64h22v6h-22z"/>
+    <!-- Loose rows of audience seating, with an aisle leading to the stage. -->
+    <path d="M105 160v-9a5 5 0 0 1 10 0v9m-12 0h14m-12 0v5m10-5v5m13-5v-9a5 5 0 0 1 10 0v9m-12 0h14m-12 0v5m10-5v5m13-5v-9a5 5 0 0 1 10 0v9m-12 0h14m-12 0v5m10-5v5M252 160v-9a5 5 0 0 1 10 0v9m-12 0h14m-12 0v5m10-5v5m13-5v-9a5 5 0 0 1 10 0v9m-12 0h14m-12 0v5m10-5v5m13-5v-9a5 5 0 0 1 10 0v9m-12 0h14m-12 0v5m10-5v5"/>
+    <path d="M19 145h76m228 0h37M177 173l10-17m60 0 10 17" stroke-opacity=".45"/>
+  </g>
+</svg>
