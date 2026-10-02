@@ -340,7 +340,7 @@ export default function MediaManager({
               <div className="media-usage">
                 <h3>ใช้ในเนื้อหา ({usages[selected.id].length})</h3>
                 {usages[selected.id].map((c) => (
-                  <Link key={c.id} href={`/admin/content/${c.id}`}>
+                  <Link key={c.id} href={c.href}>
                     {c.title} ↗
                   </Link>
                 ))}

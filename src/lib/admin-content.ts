@@ -1,3 +1,4 @@
+import { adminContentHref } from "./admin-content-url";
 import type { Content } from "./types";
 export const kindLabels: Record<string, string> = {
   all: "ทั้งหมด",
@@ -15,6 +16,9 @@ export const pageLabels: Record<string, string> = {
   contact: "ติดต่อเรา",
   privacy: "นโยบายความเป็นส่วนตัว",
 };
+export function isSystemPage(item: { kind: string; slug: string }) {
+  return item.kind === "page" && Object.hasOwn(pageLabels, item.slug);
+}
 export function contentName(item: Content) {
   return (
     (item.kind === "page" && pageLabels[item.slug]) ||
@@ -62,7 +66,7 @@ export function mediaUsage(items: Content[], url: string) {
           JSON.stringify(url).slice(1, -1),
         ),
     )
-    .map((c) => ({ id: c.id, title: contentName(c) }));
+    .map((c) => ({ id: c.id, title: contentName(c), href: adminContentHref(c) }));
 }
 export const homeGroups = [
   {
@@ -71,24 +75,24 @@ export const homeGroups = [
     keys: ["eyebrow", "heroTitle", "heroSubtitle", "heroDescription"],
   },
   {
+    id: "experience",
+    label: "ประสบการณ์",
+    keys: ["experienceTitle", "experienceDescription"],
+  },
+  {
     id: "clients",
-    label: "ลูกค้าและประสบการณ์",
-    keys: [
-      "experienceTitle",
-      "experienceDescription",
-      "clientSectionTitle",
-      "clientSectionDescription",
-    ],
+    label: "ลูกค้าของเรา",
+    keys: ["clientSectionTitle", "clientSectionDescription"],
   },
   {
     id: "work",
-    label: "ผลงานและบทความ",
-    keys: [
-      "workTitle",
-      "workDescription",
-      "journalTitle",
-      "journalDescription",
-    ],
+    label: "ผลงานเด่น",
+    keys: ["workTitle", "workDescription"],
+  },
+  {
+    id: "journal",
+    label: "บทความ",
+    keys: ["journalTitle", "journalDescription"],
   },
   {
     id: "process",
@@ -106,9 +110,14 @@ export const homeGroups = [
     keys: ["teamTitle", "teamDescription", "teamDetail"],
   },
   {
-    id: "proof",
-    label: "พันธมิตรและรีวิว",
-    keys: ["partnersTitle", "partnersDescription", "testimonialsTitle"],
+    id: "partners",
+    label: "เครือข่ายพันธมิตร",
+    keys: ["partnersTitle", "partnersDescription"],
+  },
+  {
+    id: "testimonials",
+    label: "เสียงจากลูกค้า",
+    keys: ["testimonialsTitle"],
   },
   {
     id: "faq",

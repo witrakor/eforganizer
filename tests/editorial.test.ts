@@ -225,6 +225,20 @@ test("CMS saves structured home data and retains previous versions without publi
       (await fetch(base + "/api/admin/content/" + id + "/revisions")).status,
       401,
     );
+    // Removing the final Hero image must persist an explicit empty selection.
+    const saved = (
+      await (await fetch(base + "/api/admin/content", { headers })).json()
+    ).find((entry: Content) => entry.id === id);
+    const reduced = await fetch(base + "/api/admin/content/" + id, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({ ...saved, heroSlides: [] }),
+    });
+    assert.equal(reduced.status, 200);
+    const reloaded = (
+      await (await fetch(base + "/api/admin/content", { headers })).json()
+    ).find((entry: Content) => entry.id === id);
+    assert.deepEqual(reloaded.heroSlides, []);
     const preview = await fetch(base + "/admin/preview", { headers });
     assert.equal(preview.status, 200);
     assert.equal(preview.headers.get("x-frame-options"), "SAMEORIGIN");

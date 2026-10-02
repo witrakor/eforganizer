@@ -74,9 +74,6 @@ export default function AdminNav() {
         })}
       </nav>
       <div className="admin-sidebar-bottom">
-        <Link href="/th" target="_blank">
-          ดูเว็บไซต์ <ExternalLink size={12} />
-        </Link>
         <button
           onClick={async () => {
             if (!confirmLeave()) return;
@@ -103,8 +100,8 @@ export default function AdminNav() {
         <strong>
           ELITE FLOW <small>CONTENT STUDIO</small>
         </strong>
-        <Link href="/th" target="_blank" aria-label="ดูเว็บไซต์">
-          <ExternalLink size={20} />
+        <Link className="admin-mobile-view-site" href="/th" target="_blank" rel="noopener noreferrer">
+          ดูเว็บไซต์ <ExternalLink size={16} aria-hidden="true" />
         </Link>
       </div>
       <div className="admin-desktop-nav">{navigation()}</div>

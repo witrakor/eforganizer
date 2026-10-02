@@ -1,3 +1,4 @@
+import { adminContentHref } from "@/lib/admin-content-url";
 import PublicAdminBar from "@/components/public-admin-bar";
 import ContentBody from "@/components/content-body";
 import { notFound } from "next/navigation";
@@ -96,9 +97,20 @@ export default async function Page({ params }: Props) {
     <>
       <PublicAdminBar
         key={page.id}
-        editHref={segments.length === 0 ? "/admin/settings" : page.kind !== "service" || services.some((service) => service.id === page.id) ? `/admin/content/${page.id}` : null}
+        editHref={
+          page.kind !== "service" ||
+          services.some((service) => service.id === page.id)
+            ? adminContentHref(page)
+            : null
+        }
         kind={page.kind}
-        listKind={segments.length === 1 && segments[0] === "journal" ? "post" : segments.length === 1 && segments[0] === "work" ? "project" : null}
+        listKind={
+          segments.length === 1 && segments[0] === "journal"
+            ? "post"
+            : segments.length === 1 && segments[0] === "work"
+              ? "project"
+              : null
+        }
       />
       <Header locale={l} />
       <main id="main-content">

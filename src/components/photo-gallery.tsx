@@ -15,9 +15,7 @@ export default function PhotoGallery({
   locale: Locale;
   compact?: boolean;
 }) {
-  const track = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
-  const [edges, setEdges] = useState({ start: true, end: false });
   const opener = useRef<HTMLButtonElement | null>(null);
   const [active, setActive] = useState(0);
   const th = locale === "th";
@@ -27,35 +25,6 @@ export default function PhotoGallery({
     },
     [],
   );
-  useEffect(() => {
-    const element = track.current;
-    if (!element) return;
-    const update = () =>
-      setEdges({
-        start: element.scrollLeft <= 2,
-        end:
-          element.scrollLeft + element.clientWidth >= element.scrollWidth - 2,
-      });
-    const observer = new ResizeObserver(update);
-    observer.observe(element);
-    Array.from(element.children).forEach((child) => observer.observe(child));
-    element.addEventListener("scroll", update, { passive: true });
-    update();
-    return () => {
-      observer.disconnect();
-      element.removeEventListener("scroll", update);
-    };
-  }, [images]);
-  const scroll = (direction: number) => {
-    const element = track.current;
-    if (!element) return;
-    element.scrollBy({
-      left: direction * element.clientWidth * 0.8,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-    });
-  };
   if (!images.length) return null;
   const move = (direction: number) =>
     setActive((index) => (index + direction + images.length) % images.length);
@@ -64,42 +33,13 @@ export default function PhotoGallery({
     <div className={`photo-gallery${compact ? " photo-gallery-compact" : ""}`}>
       <div className="gallery-rail-toolbar">
         <span>
-          {images.length}{" "}
-          {th ? "ภาพ · เลื่อนชมภาพเต็ม" : "photos · Explore the full frame"}
+          {images.length} {th ? "ภาพ" : "photos"}
         </span>
-        <div className="gallery-rail-controls">
-          <button
-            type="button"
-            disabled={edges.start}
-            onClick={() => scroll(-1)}
-            aria-label={th ? "เลื่อนภาพไปทางซ้าย" : "Scroll photos left"}
-          >
-            <ArrowLeft size={19} />
-          </button>
-          <button
-            type="button"
-            disabled={edges.end}
-            onClick={() => scroll(1)}
-            aria-label={th ? "เลื่อนภาพไปทางขวา" : "Scroll photos right"}
-          >
-            <ArrowRight size={19} />
-          </button>
-        </div>
+        <span>
+          {th ? "คลิกภาพเพื่อชมขนาดเต็ม" : "Click a photo to view full size"}
+        </span>
       </div>
-      <div
-        ref={track}
-        className="gallery-rail"
-        role="region"
-        aria-roledescription="carousel"
-        aria-label={title}
-        tabIndex={0}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-            event.preventDefault();
-            scroll(event.key === "ArrowRight" ? 1 : -1);
-          }
-        }}
-      >
+      <div className="gallery-rail" role="region" aria-label={title}>
         {images.map((src, index) => (
           <button
             type="button"

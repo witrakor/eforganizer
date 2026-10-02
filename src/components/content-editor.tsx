@@ -1,15 +1,37 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Save, ArrowUpRight, ArrowLeft, ImagePlus, Eye } from "lucide-react";
+import { adminContentHref } from "@/lib/admin-content-url";
+import { useRouter } from "next/navigation";
+import {
+  Save,
+  ArrowUpRight,
+  ArrowLeft,
+  ImagePlus,
+  Eye,
+  Trash2,
+} from "lucide-react";
 import type { Content, Locale } from "@/lib/types";
 import { useAdminGuard } from "./admin-guard";
-import { contentName, homeGroups } from "@/lib/admin-content";
+import { contentName, homeGroups, isSystemPage } from "@/lib/admin-content";
+import AdminDialog from "./admin-dialog";
 import { serviceCover } from "@/lib/service-catalog";
 import { homeEditorDefaults } from "@/lib/home-editor-defaults";
 import MediaPicker from "./media-picker";
+import { changeContentCover } from "@/lib/content-images";
 import dynamic from "next/dynamic";
 import HomeSettings from "./home-settings";
+import {
+  homeSections,
+  homeSectionState,
+  homeSectionStateLabels,
+  type HomeSection,
+} from "@/lib/home-content";
+import { contentEditorSections } from "@/lib/content-editor-sections";
+import ContentSectionNav from "./content-section-nav";
+import ContentLinkedItems from "./content-linked-items";
+import { eventPhotos, teamPhotos } from "@/lib/event-photos";
+import HomePageMap from "./home-page-map";
 const RichTextEditor = dynamic(() => import("./rich-text-editor"), {
   ssr: false,
   loading: () => <p>กำลังเตรียมตัวแก้ไข…</p>,
@@ -86,10 +108,12 @@ const extraLabels: Record<string, string> = {
 };
 export default function ContentEditor({
   initial,
+  siteUrl = "",
   services,
   items,
 }: {
   initial: Content;
+  siteUrl?: string;
   services: Content[];
   items: Content[];
 }) {
@@ -102,7 +126,12 @@ export default function ContentEditor({
     [picker, setPicker] = useState<"cover" | "gallery" | "team" | null>(null),
     [preview, setPreview] = useState(false);
   const { setDirty: setGuardDirty } = useAdminGuard();
+  const router = useRouter();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [authExpired, setAuthExpired] = useState(false);
+  const [contentGroup, setContentGroup] = useState("intro");
   const [homeGroup, setHomeGroup] = useState("hero");
   const isHome = value.kind === "page" && value.slug === "home";
   const activeGroup = homeGroups.find((g) => g.id === homeGroup)!;
@@ -202,7 +231,7 @@ export default function ContentEditor({
   const change = (key: string, v: string | string[]) =>
     update({ [locale]: { ...value[locale], [key]: v } });
   async function save() {
-    if (busy) return;
+    if (busy || deleting) return;
     const submitted = value;
     setBusy(true);
     setError(false);
@@ -224,6 +253,12 @@ export default function ContentEditor({
       setValue((v) => ({ ...v, version: d.version }));
       const changedDuringSave = latest.current !== submitted;
       setDirty(changedDuringSave);
+      // Update the address after a slug change without discarding newer edits.
+      window.history.replaceState(
+        window.history.state,
+        "",
+        adminContentHref(submitted),
+      );
       if (!changedDuringSave) {
         try {
           sessionStorage.removeItem(`eliteflow-draft:${value.id}`);
@@ -243,6 +278,32 @@ export default function ContentEditor({
       setBusy(false);
     }
   }
+  async function removeContent() {
+    if (busy || deleting) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      const response = await fetch(`/api/admin/content/${initial.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ version: value.version }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok)
+        throw new Error(result.error || "ลบเนื้อหาไม่สำเร็จ กรุณาลองใหม่");
+      setDirty(false);
+      setGuardDirty(false);
+      try {
+        sessionStorage.removeItem(`eliteflow-draft:${initial.id}`);
+      } catch {}
+      setConfirmDelete(false);
+      router.replace("/admin/content");
+      router.refresh();
+    } catch (error) {
+      setDeleteError((error as Error).message);
+      setDeleting(false);
+    }
+  }
   const route =
     value.kind === "post"
       ? `journal/${value.slug}`
@@ -256,10 +317,21 @@ export default function ContentEditor({
               ? value.slug
               : `pages/${value.slug}`;
   const isFixed = value.kind === "page" && fixed.includes(initial.slug);
-  const richBody = !isFixed || ["about", "privacy"].includes(value.slug);
-  const hasImage = !isFixed || value.slug === "about";
-  const hasGallery = !isFixed || value.slug === "about";
-  const hasItems = !isFixed || value.slug === "about";
+  const editorSections = contentEditorSections(value);
+  const activeContentSection =
+    editorSections.find((section) => section.id === contentGroup) ||
+    editorSections[0];
+  const activeContentGroup = activeContentSection.id;
+  const richBody = !isHome && activeContentGroup === "body";
+  const hasImage = !isHome && activeContentGroup === "cover";
+  const hasGallery = !isHome && activeContentGroup === "gallery";
+  const hasItems = !isHome && activeContentGroup === "items";
+  const displayCover =
+    value.kind === "service" && !value.coverOverride
+      ? serviceCover(value.slug) || value.image
+      : value.image;
+  const publicPath = `/${locale}${route ? `/${route}` : ""}`;
+  const publicUrl = `${siteUrl.replace(/\/+$/, "")}${publicPath}`;
   const c = value[locale];
   return (
     <>
@@ -274,6 +346,19 @@ export default function ContentEditor({
             เนื้อหาทั้งหมด
           </Link>
           <h1>{contentName(value)}</h1>
+          <div className="editor-public-url">
+            <span>URL หน้าเว็บ</span>
+            {value.status === "published" ? (
+              <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+                {publicUrl}
+                <ArrowUpRight size={13} aria-hidden="true" />
+              </a>
+            ) : (
+              <span className="editor-url-draft">
+                {publicUrl} · ฉบับร่าง ยังไม่เผยแพร่
+              </span>
+            )}
+          </div>
           <p>
             {dirty
               ? "มีการแก้ไขที่ยังไม่บันทึก"
@@ -281,10 +366,24 @@ export default function ContentEditor({
           </p>
         </div>
         <div className="editor-top">
+          {!isSystemPage(initial) && (
+            <button
+              type="button"
+              className="button button-small content-delete-button"
+              disabled={busy || deleting}
+              onClick={() => {
+                setDeleteError("");
+                setConfirmDelete(true);
+              }}
+            >
+              <Trash2 size={15} aria-hidden="true" />
+              ลบเนื้อหา
+            </button>
+          )}
           {value.status === "published" && (
             <Link
               className="button button-ghost button-small"
-              href={`/${locale}/${route}`}
+              href={publicPath}
               target="_blank"
             >
               ดูหน้าเว็บ
@@ -294,7 +393,7 @@ export default function ContentEditor({
           <button
             className="button button-small"
             onClick={save}
-            disabled={busy}
+            disabled={busy || deleting}
           >
             <Save size={15} />
             {busy
@@ -305,6 +404,50 @@ export default function ContentEditor({
           </button>
         </div>
       </div>
+      {confirmDelete && (
+        <AdminDialog
+          label="ยืนยันการลบเนื้อหา"
+          className="content-delete-dialog"
+          onClose={() => {
+            if (!deleting) setConfirmDelete(false);
+          }}
+        >
+          <h2>ลบเนื้อหานี้?</h2>
+          <p>
+            <strong>{contentName(value)}</strong>
+          </p>
+          <p>
+            เนื้อหาทั้งภาษาไทยและอังกฤษจะถูกนำออกจากรายการและหน้าเว็บไซต์
+            รูปภาพในคลังจะยังอยู่
+          </p>
+          {dirty && <p>การแก้ไขที่ยังไม่บันทึกในหน้านี้จะถูกยกเลิกด้วย</p>}
+          {deleteError && (
+            <p className="content-delete-error" role="alert">
+              {deleteError}
+            </p>
+          )}
+          <div className="content-delete-actions">
+            <button
+              type="button"
+              className="button button-ghost"
+              autoFocus
+              disabled={deleting}
+              onClick={() => setConfirmDelete(false)}
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="button"
+              className="button content-delete-button"
+              disabled={deleting}
+              onClick={removeContent}
+            >
+              <Trash2 size={15} aria-hidden="true" />
+              {deleting ? "กำลังลบ…" : "ยืนยันลบเนื้อหา"}
+            </button>
+          </div>
+        </AdminDialog>
+      )}
       {notice && (
         <div
           className={`save-notice ${error ? "error" : ""}`}
@@ -348,7 +491,7 @@ export default function ContentEditor({
           </button>
         </div>
       )}
-      <div className="editor-layout">
+      <div className="editor-layout content-management-editor">
         <section className="admin-panel">
           <div className="editor-tabs">
             <button
@@ -371,45 +514,91 @@ export default function ContentEditor({
             </button>
           </div>
           {isHome && (
-            <label className="home-section-select field-label">
-              ส่วนที่ต้องการแก้ไข
-              <select
-                value={homeGroup}
-                onChange={(e) => setHomeGroup(e.target.value)}
-              >
-                {homeGroups.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <HomePageMap
+              value={value}
+              locale={locale}
+              selected={homeGroup}
+              onSelect={(id) => {
+                setHomeGroup(id);
+                requestAnimationFrame(() =>
+                  document
+                    .querySelector(".editor-section-heading")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                );
+              }}
+            />
           )}
-          {isHome && (
-            <div className="home-section-nav" aria-label="ส่วนของหน้าแรก">
-              {homeGroups.map((g) => (
-                <button
-                  key={g.id}
-                  aria-pressed={homeGroup === g.id}
-                  className={homeGroup === g.id ? "selected" : ""}
-                  onClick={() => setHomeGroup(g.id)}
-                >
-                  {g.label}
-                </button>
-              ))}
-            </div>
+          {!isHome && (
+            <ContentSectionNav
+              sections={editorSections}
+              selected={activeContentGroup}
+              onSelect={(id) => {
+                setContentGroup(id);
+                requestAnimationFrame(() =>
+                  document
+                    .querySelector(".editor-section-heading")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                );
+              }}
+            />
           )}
           <div className="editor-fields">
+            {!isHome && (
+              <div className="editor-section-heading">
+                <h2>{activeContentSection.label}</h2>
+                <p>{activeContentSection.description}</p>
+              </div>
+            )}
+            {!isHome && activeContentSection.listKind && (
+              <ContentLinkedItems
+                key={activeContentGroup}
+                serviceDirectory={
+                  value.kind === "page" && value.slug === "services"
+                }
+                locale={locale}
+                items={items.filter(
+                  (item) =>
+                    item.kind === activeContentSection.listKind &&
+                    (activeContentGroup !== "related" ||
+                      item.category === value.slug),
+                )}
+              />
+            )}
+
             {isHome && (
               <div className="editor-section-heading">
                 <h2>{activeGroup.label}</h2>
+                {homeSections.includes(homeGroup as HomeSection) &&
+                  homeSectionState(value, homeGroup as HomeSection, locale) !==
+                    "visible" && (
+                    <p role="status" className="home-section-status">
+                      ส่วนนี้ยังไม่แสดงบนหน้าแรก:{" "}
+                      {
+                        homeSectionStateLabels[
+                          homeSectionState(
+                            value,
+                            homeGroup as HomeSection,
+                            locale,
+                          )
+                        ]
+                      }
+                      {homeSectionState(
+                        value,
+                        homeGroup as HomeSection,
+                        locale,
+                      ) === "hidden"
+                        ? " · เปิดได้ที่จัดลำดับ / ซ่อนส่วนของหน้า"
+                        : " · เพิ่มรายการ กรอกชื่อ และเลือกแสดงบนเว็บก่อนบันทึก"}
+                    </p>
+                  )}
                 <p>
                   แก้ไขภาษา {locale === "th" ? "ไทย" : "อังกฤษ"}{" "}
                   แล้วกดดูตัวอย่างก่อนบันทึก
                 </p>
               </div>
             )}
-            {(!isHome || homeGroup === "seo") && (
+            {((!isHome && activeContentGroup === "intro") ||
+              (isHome && homeGroup === "seo")) && (
               <>
                 <label className="field-label">
                   {isHome
@@ -419,28 +608,32 @@ export default function ContentEditor({
                     rows={2}
                     value={c.title}
                     onChange={(e) => change("title", e.target.value)}
-                    style={{ minHeight: 70 }}
+                    className="editor-title-input"
                     maxLength={200}
                   />
                 </label>
                 {!isHome && (
                   <>
-                    <label className="field-label">
-                      ข้อความเหนือหัวข้อ / Eyebrow
-                      <input
-                        value={c.eyebrow}
-                        onChange={(e) => change("eyebrow", e.target.value)}
-                        maxLength={120}
-                      />
-                    </label>
-                    <label className="field-label">
-                      หัวข้อรอง / Subtitle
-                      <input
-                        value={c.subtitle}
-                        onChange={(e) => change("subtitle", e.target.value)}
-                        maxLength={300}
-                      />
-                    </label>
+                    {value.kind !== "service" && (
+                      <label className="field-label">
+                        ข้อความเหนือหัวข้อ / Eyebrow
+                        <input
+                          value={c.eyebrow}
+                          onChange={(e) => change("eyebrow", e.target.value)}
+                          maxLength={120}
+                        />
+                      </label>
+                    )}
+                    {(value.kind === "service" || value.kind === "project") && (
+                      <label className="field-label">
+                        หัวข้อรอง / Subtitle
+                        <input
+                          value={c.subtitle}
+                          onChange={(e) => change("subtitle", e.target.value)}
+                          maxLength={300}
+                        />
+                      </label>
+                    )}
                   </>
                 )}
                 <label className="field-label">
@@ -454,20 +647,13 @@ export default function ContentEditor({
                 </label>
               </>
             )}
-            {(isHome ? activeGroup.keys : Object.keys(extraLabels))
-              .filter(
-                (k) =>
-                  isHome ||
-                  (k !== "eyebrow" && k in c) ||
-                  (value.kind === "project" &&
-                    ["client", "venue", "role", "outcome"].includes(k)),
-              )
-              .map((k) => (
+            {(isHome ? activeGroup.keys : activeContentSection.keys || []).map(
+              (k) => (
                 <label className="field-label" key={k}>
                   {extraLabels[k]}
                   <textarea
                     rows={
-                      k.includes("Description") || k.includes("Detail") ? 4 : 2
+                      k.includes("Description") || k.includes("Detail") ? 3 : 2
                     }
                     style={{ minHeight: 65 }}
                     value={String(
@@ -478,7 +664,8 @@ export default function ContentEditor({
                     onChange={(e) => change(k, e.target.value)}
                   />
                 </label>
-              ))}
+              ),
+            )}
             {isHome && homeGroup === "team" && (
               <div className="field-label">
                 ภาพทีมงาน
@@ -495,7 +682,7 @@ export default function ContentEditor({
                 </button>
               </div>
             )}
-            {value.kind === "project" && (
+            {!isHome && activeContentGroup === "sources" && (
               <details className="project-facts" open>
                 <summary>วันที่จัดงานและที่มาข้อมูล</summary>
                 <div className="editor-fields">
@@ -632,15 +819,28 @@ export default function ContentEditor({
               </div>
             )}
             {isHome &&
-              ["hero", "clients", "proof", "work", "layout"].includes(
-                homeGroup,
-              ) && (
+              [
+                "hero",
+                "clients",
+                "partners",
+                "testimonials",
+                "work",
+                "journal",
+                "layout",
+              ].includes(homeGroup) && (
                 <HomeSettings
+                  key={homeGroup}
                   section={
-                    homeGroup === "work"
+                    homeGroup === "work" || homeGroup === "journal"
                       ? "selections"
-                      : (homeGroup as "hero" | "clients" | "proof" | "layout")
+                      : (homeGroup as
+                          | "hero"
+                          | "clients"
+                          | "partners"
+                          | "testimonials"
+                          | "layout")
                   }
+                  selectionKind={homeGroup === "journal" ? "post" : "project"}
                   value={value}
                   items={items}
                   locale={locale}
@@ -664,8 +864,148 @@ export default function ContentEditor({
                 />
               </label>
             )}
-            {(!isHome || homeGroup === "seo") && (
-              <details open={isHome}>
+            {hasImage && (
+              <section className="content-media-panel">
+                <p className="editor-help">
+                  กดเลือกรูปจากคลัง ภาพตัวอย่างแสดงเต็มสัดส่วน
+                </p>
+                {displayCover && (
+                  <div className="editor-cover">
+                    <img src={displayCover} alt="ภาพหลัก" />
+                  </div>
+                )}
+                <button
+                  className="button button-small button-ghost"
+                  onClick={() => setPicker("cover")}
+                >
+                  <ImagePlus size={15} />
+                  เลือกรูปภาพ
+                </button>
+                {value.image && (
+                  <button
+                    className="icon-button"
+                    style={{ marginLeft: 8 }}
+                    onClick={() =>
+                      update({
+                        image: "",
+                        ...(value.kind === "service"
+                          ? { coverOverride: false }
+                          : {}),
+                      })
+                    }
+                    aria-label={
+                      value.kind === "service"
+                        ? "ใช้ภาพคอนเซปต์เริ่มต้น"
+                        : "ลบภาพหลัก"
+                    }
+                  >
+                    ×
+                  </button>
+                )}
+                <p className="editor-help">
+                  ระบบปรับภาพตามขนาดหน้าจอ เก็บไฟล์ต้นทางในคลัง
+                </p>
+              </section>
+            )}
+            {hasGallery && (
+              <section className="content-media-panel">
+                <p className="editor-help">
+                  เลือกไว้ {value.gallery.length} / 30 ภาพ ·
+                  ใช้ลูกศรเพื่อจัดลำดับ
+                </p>
+                {value.slug === "home" && (
+                  <p className="editor-help">
+                    รูปที่ 2 ใช้ในส่วนทีมงาน ·
+                    ภาพเปิดหน้าเลือกได้ในหมวดภาพเปิดหน้า
+                  </p>
+                )}
+                {!value.gallery.length && (
+                  <p className="editor-help">
+                    ยังไม่ได้เลือกชุดภาพเอง
+                    {value.slug === "about" || eventPhotos(value).length > 0
+                      ? " · หน้าเว็บกำลังใช้ภาพชุดเริ่มต้นด้านล่าง"
+                      : " · เพิ่มรูปจากคลังเพื่อแสดงแกลเลอรี"}
+                  </p>
+                )}
+                {!value.gallery.length && (
+                  <div className="home-choice-grid content-default-gallery">
+                    {(value.slug === "about"
+                      ? teamPhotos
+                      : eventPhotos(value)
+                    ).map((url) => (
+                      <img
+                        key={url}
+                        src={url}
+                        alt="ภาพเริ่มต้นที่แสดงบนเว็บ"
+                        loading="lazy"
+                      />
+                    ))}
+                  </div>
+                )}
+                <div className="gallery-editor">
+                  {value.gallery.map((url, i) => (
+                    <div className="gallery-item" key={`${url}-${i}`}>
+                      <img src={url} alt={`รูปที่ ${i + 1}`} loading="lazy" />
+                      <div>
+                        <button
+                          type="button"
+                          aria-label={`เลื่อนรูปที่ ${i + 1} ไปก่อนหน้า`}
+                          disabled={i === 0}
+                          onClick={() => {
+                            const gallery = [...value.gallery];
+                            [gallery[i - 1], gallery[i]] = [
+                              gallery[i],
+                              gallery[i - 1],
+                            ];
+                            update({ gallery });
+                          }}
+                        >
+                          ←
+                        </button>
+                        <span>{i + 1}</span>
+                        <button
+                          type="button"
+                          aria-label={`เลื่อนรูปที่ ${i + 1} ไปถัดไป`}
+                          disabled={i === value.gallery.length - 1}
+                          onClick={() => {
+                            const gallery = [...value.gallery];
+                            [gallery[i + 1], gallery[i]] = [
+                              gallery[i],
+                              gallery[i + 1],
+                            ];
+                            update({ gallery });
+                          }}
+                        >
+                          →
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`นำรูปที่ ${i + 1} ออกจากแกลเลอรี`}
+                          onClick={() =>
+                            update({
+                              gallery: value.gallery.filter((_, n) => n !== i),
+                            })
+                          }
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="button button-small button-ghost"
+                  style={{ marginTop: 15 }}
+                  onClick={() => setPicker("gallery")}
+                >
+                  เพิ่มรูป
+                </button>
+              </section>
+            )}
+
+            {((!isHome && activeContentGroup === "seo") ||
+              (isHome && homeGroup === "seo")) && (
+              <details open>
                 <summary>SEO — หัวข้อและคำอธิบายสำหรับการค้นหา</summary>
                 <div className="editor-fields" style={{ marginTop: 15 }}>
                   <label className="field-label">
@@ -719,26 +1059,28 @@ export default function ContentEditor({
             </label>
             {!isFixed && (
               <>
-                <label className="field-label">
-                  วันที่
-                  <input
-                    type="date"
-                    value={value.date}
-                    onChange={(e) => update({ date: e.target.value })}
-                  />
-                </label>
-                <label className="field-label">
-                  ลำดับ
-                  <input
-                    type="number"
-                    min={0}
-                    max={9999}
-                    value={value.sortOrder}
-                    onChange={(e) =>
-                      update({ sortOrder: Number(e.target.value) })
-                    }
-                  />
-                </label>
+                <div className="editor-publish-row">
+                  <label className="field-label">
+                    วันที่
+                    <input
+                      type="date"
+                      value={value.date}
+                      onChange={(e) => update({ date: e.target.value })}
+                    />
+                  </label>
+                  <label className="field-label">
+                    ลำดับ
+                    <input
+                      type="number"
+                      min={0}
+                      max={9999}
+                      value={value.sortOrder}
+                      onChange={(e) =>
+                        update({ sortOrder: Number(e.target.value) })
+                      }
+                    />
+                  </label>
+                </div>
                 {value.kind === "project" ? (
                   <label className="field-label">
                     หมวดบริการ
@@ -774,8 +1116,8 @@ export default function ContentEditor({
               </>
             )}
           </section>
-          <section className="admin-panel">
-            <h2>ประวัติการแก้ไข</h2>
+          <details className="admin-panel editor-history">
+            <summary>ประวัติการแก้ไข</summary>
             <button type="button" onClick={loadRevisions}>
               โหลดประวัติ
             </button>
@@ -802,113 +1144,7 @@ export default function ContentEditor({
                 เวอร์ชัน {r.version} · {r.savedAt}
               </button>
             ))}
-          </section>
-          {hasImage && (
-            <section className="admin-panel">
-              <h2>ภาพหลัก</h2>
-              {value.image && (
-                <div className="editor-cover">
-                  <img
-                    src={
-                      value.kind === "service" && !value.coverOverride
-                        ? serviceCover(value.slug) || value.image
-                        : value.image
-                    }
-                    alt="ภาพหลัก"
-                  />
-                </div>
-              )}
-              <button
-                className="button button-small button-ghost"
-                onClick={() => setPicker("cover")}
-              >
-                <ImagePlus size={15} />
-                เลือกรูปภาพ
-              </button>
-              {value.image && (
-                <button
-                  className="icon-button"
-                  style={{ marginLeft: 8 }}
-                  onClick={() => update({ image: "" })}
-                  aria-label="ลบภาพหลัก"
-                >
-                  ×
-                </button>
-              )}
-              <p className="editor-help">
-                ระบบปรับภาพตามขนาดหน้าจอ เก็บไฟล์ต้นทางในคลัง
-              </p>
-            </section>
-          )}
-          {hasGallery && (
-            <section className="admin-panel">
-              <h2>{value.slug === "home" ? "ภาพประกอบหน้าแรก" : "แกลเลอรี"}</h2>
-              {value.slug === "home" && (
-                <p className="editor-help">
-                  รูปที่ 2 ใช้ในส่วนทีมงาน ·
-                  ภาพเปิดหน้าเลือกได้ในหมวดภาพเปิดหน้า
-                </p>
-              )}
-              <div className="gallery-editor">
-                {value.gallery.map((url, i) => (
-                  <div className="gallery-item" key={url}>
-                    <img src={url} alt={`รูปที่ ${i + 1}`} loading="lazy" />
-                    <div>
-                      <button
-                        type="button"
-                        aria-label={`เลื่อนรูปที่ ${i + 1} ไปก่อนหน้า`}
-                        disabled={i === 0}
-                        onClick={() => {
-                          const gallery = [...value.gallery];
-                          [gallery[i - 1], gallery[i]] = [
-                            gallery[i],
-                            gallery[i - 1],
-                          ];
-                          update({ gallery });
-                        }}
-                      >
-                        ←
-                      </button>
-                      <span>{i + 1}</span>
-                      <button
-                        type="button"
-                        aria-label={`เลื่อนรูปที่ ${i + 1} ไปถัดไป`}
-                        disabled={i === value.gallery.length - 1}
-                        onClick={() => {
-                          const gallery = [...value.gallery];
-                          [gallery[i + 1], gallery[i]] = [
-                            gallery[i],
-                            gallery[i + 1],
-                          ];
-                          update({ gallery });
-                        }}
-                      >
-                        →
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`นำรูปที่ ${i + 1} ออกจากแกลเลอรี`}
-                        onClick={() =>
-                          update({
-                            gallery: value.gallery.filter((_, n) => n !== i),
-                          })
-                        }
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button
-                className="button button-small button-ghost"
-                style={{ marginTop: 15 }}
-                onClick={() => setPicker("gallery")}
-              >
-                เพิ่มรูป
-              </button>
-            </section>
-          )}
+          </details>
         </aside>
       </div>
       {preview && (
@@ -955,18 +1191,36 @@ export default function ContentEditor({
       )}
       {picker && (
         <MediaPicker
+          content={!isHome && picker !== "team" ? value : undefined}
+          excludedUrls={
+            picker === "gallery" && !isHome
+              ? [value.image, ...value.gallery]
+              : []
+          }
           onClose={closePicker}
           multiple={picker === "gallery"}
           maxSelection={30 - value.gallery.length}
           onSelectMany={(urls) => {
             update({
-              gallery: [...new Set([...value.gallery, ...urls])].slice(0, 30),
+              gallery: [...new Set([...value.gallery, ...urls])]
+                .filter((url) => isHome || url !== value.image)
+                .slice(0, 30),
             });
             setPicker(null);
           }}
           onSelect={(url) => {
-            if (picker === "cover") update({ image: url, coverOverride: true });
-            else if (picker === "team") {
+            if (picker === "cover") {
+              try {
+                update(
+                  isHome
+                    ? { image: url, coverOverride: true }
+                    : changeContentCover(value, url),
+                );
+              } catch (error) {
+                setNotice((error as Error).message);
+                setError(true);
+              }
+            } else if (picker === "team") {
               const gallery = [...value.gallery];
               if (!gallery[0]) gallery[0] = value.image || url;
               gallery[1] = url;

@@ -13,7 +13,7 @@ const parse = (r: Row): Content => ({
 });
 export async function contents(kind?: string, admin = false) {
   const rows = await query<Row[]>(
-    `SELECT * FROM content WHERE 1=1 ${kind ? "AND kind = ?" : ""} ${admin ? "" : "AND status = 'published'"}`,
+    `SELECT * FROM content WHERE status <> 'deleted' ${kind ? "AND kind = ?" : ""} ${admin ? "" : "AND status = 'published'"}`,
     kind ? [kind] : [],
   );
   return rows.map(parse).sort((a, b) => {
@@ -25,13 +25,16 @@ export async function contents(kind?: string, admin = false) {
 }
 export async function content(kind: string, slug: string, admin = false) {
   const r = await query<Row[]>(
-    `SELECT * FROM content WHERE kind=? AND slug=? ${admin ? "" : "AND status='published'"}`,
+    `SELECT * FROM content WHERE kind=? AND slug=? AND status <> 'deleted' ${admin ? "" : "AND status='published'"}`,
     [kind, slug],
   );
   return r[0] ? parse(r[0]) : null;
 }
 export async function contentById(id: string) {
-  const r = await query<Row[]>("SELECT * FROM content WHERE id=?", [id]);
+  const r = await query<Row[]>(
+    "SELECT * FROM content WHERE id=? AND status <> 'deleted'",
+    [id],
+  );
   return r[0] ? parse(r[0]) : null;
 }
 export async function mediaList(all = false) {

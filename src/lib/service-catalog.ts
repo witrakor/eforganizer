@@ -299,20 +299,24 @@ export function serviceMenuItems(services: Content[]): ServiceMenuItem[] {
   const known = new Set(serviceCategories.map((category) => category.slug));
   const extra = services.filter((service) => !known.has(service.slug));
   return [
-    ...serviceCategories.map((category) => {
-      const existing = services.find((s) => s.slug === category.slug);
-      return {
-        ...category,
-        th: {
-          title: existing?.th.title || category.th.title,
-          examples: existing?.th.subtitle || category.th.examples,
-        },
-        en: {
-          title: existing?.en.title || category.en.title,
-          examples: existing?.en.subtitle || category.en.examples,
-        },
-      };
-    }),
+    ...serviceCategories
+      .filter((category) =>
+        services.some((service) => service.slug === category.slug),
+      )
+      .map((category) => {
+        const existing = services.find((s) => s.slug === category.slug);
+        return {
+          ...category,
+          th: {
+            title: existing?.th.title || category.th.title,
+            examples: existing?.th.subtitle || category.th.examples,
+          },
+          en: {
+            title: existing?.en.title || category.en.title,
+            examples: existing?.en.subtitle || category.en.examples,
+          },
+        };
+      }),
     ...extra.map((service) => {
       const specialist = specialistMenu[service.slug];
       return {
@@ -333,34 +337,45 @@ export function serviceMenuItems(services: Content[]): ServiceMenuItem[] {
   ];
 }
 
-export function catalogServices(services: Content[]): Content[] {
-  return serviceCategories.map((category, index) => {
-    const existing = services.find((service) => service.slug === category.slug);
-    const translation = (locale: Locale): Translation => ({
-      title: category[locale].title,
-      subtitle: category[locale].examples,
-      description: category[locale].description,
-      body: existing?.[locale].body || "",
-      eyebrow: "EVENTS WE CREATE",
-      seoTitle: category[locale].title,
-      seoDescription: category[locale].description,
-      items: category[locale].items,
-      ...existing?.[locale],
+export function catalogServices(
+  services: Content[],
+  includeTemplates = false,
+): Content[] {
+  return serviceCategories
+    .filter(
+      (category) =>
+        includeTemplates ||
+        services.some((service) => service.slug === category.slug),
+    )
+    .map((category, index) => {
+      const existing = services.find(
+        (service) => service.slug === category.slug,
+      );
+      const translation = (locale: Locale): Translation => ({
+        title: category[locale].title,
+        subtitle: category[locale].examples,
+        description: category[locale].description,
+        body: existing?.[locale].body || "",
+        eyebrow: "EVENTS WE CREATE",
+        seoTitle: category[locale].title,
+        seoDescription: category[locale].description,
+        items: category[locale].items,
+        ...existing?.[locale],
+      });
+      return {
+        id: existing?.id || `service-${category.slug}`,
+        kind: "service" as const,
+        slug: category.slug,
+        status: "published" as const,
+        image: existing?.image || category.image,
+        gallery: existing?.gallery || [],
+        category: "",
+        featured: false,
+        sortOrder: index,
+        date: existing?.date || "2026-10-01",
+        ...existing,
+        th: translation("th"),
+        en: translation("en"),
+      };
     });
-    return {
-      id: existing?.id || `service-${category.slug}`,
-      kind: "service" as const,
-      slug: category.slug,
-      status: "published" as const,
-      image: existing?.image || category.image,
-      gallery: existing?.gallery || [],
-      category: "",
-      featured: false,
-      sortOrder: index,
-      date: existing?.date || "2026-10-01",
-      ...existing,
-      th: translation("th"),
-      en: translation("en"),
-    };
-  });
 }

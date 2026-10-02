@@ -1,3 +1,4 @@
+import { adminContentHref } from "@/lib/admin-content-url";
 import { contentName } from "@/lib/admin-content";
 import Link from "next/link";
 import { bangkokDate } from "@/lib/date";
@@ -87,7 +88,7 @@ export default async function Page() {
             )
             .slice(0, 5)
             .map((i) => (
-              <Link href={`/admin/content/${i.id}`} key={i.id}>
+              <Link href={adminContentHref(i)} key={i.id}>
                 <div>
                   <strong>{contentName(i)}</strong>
                   <small>

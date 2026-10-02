@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-type CreateKind = "post" | "project";
+type CreateKind = "post" | "project" | "service" | "page";
 
 export default function PublicAdminBar({
   editHref,
@@ -129,7 +129,7 @@ export default function PublicAdminBar({
       }
       if (createKind) {
         const result = await response.json();
-        router.push(`/admin/content/${encodeURIComponent(result.id)}`);
+        router.push(result.href);
       } else {
         setExpiresAt(null);
         setMenuOpen(false);
@@ -179,13 +179,13 @@ export default function PublicAdminBar({
             <div className="public-admin-menu" ref={menu}>
               <button
                 type="button"
-                aria-label="เพิ่มเนื้อหาและเมนูผู้ดูแล"
+                aria-label="เพิ่มเนื้อหา"
                 aria-expanded={menuOpen}
                 aria-controls="public-admin-menu"
                 onClick={() => setMenuOpen(!menuOpen)}
               >
                 <span className="public-admin-desktop">+ เพิ่มเนื้อหา</span>
-                <span className="public-admin-mobile">⋯</span>
+                <span className="public-admin-mobile">+ เพิ่ม</span>
               </button>
               {menuOpen && (
                 <div className="public-admin-dropdown" id="public-admin-menu">
@@ -195,27 +195,19 @@ export default function PublicAdminBar({
                   <button disabled={busy} onClick={() => act("project")}>
                     + เพิ่มผลงาน
                   </button>
-                  <Link href="/admin" prefetch={false}>
-                    ไปหลังบ้าน
-                  </Link>
-                  <button disabled={busy} onClick={() => act()}>
-                    ออกจากระบบ
+                  <button disabled={busy} onClick={() => act("service")}>
+                    + เพิ่มบริการ
+                  </button>
+                  <button disabled={busy} onClick={() => act("page")}>
+                    + เพิ่มหน้าเว็บ
                   </button>
                 </div>
               )}
             </div>
-            <Link
-              className="public-admin-desktop"
-              href="/admin"
-              prefetch={false}
-            >
+            <Link href="/admin" prefetch={false}>
               หลังบ้าน
             </Link>
-            <button
-              className="public-admin-desktop"
-              disabled={busy}
-              onClick={() => act()}
-            >
+            <button disabled={busy} onClick={() => act()}>
               ออกจากระบบ
             </button>
           </nav>

@@ -68,7 +68,7 @@ test("public toolbar session: guest, real login, expiry, protected create and lo
       ).status,
       403,
     );
-    for (const kind of ["post", "project"]) {
+    for (const kind of ["post", "project", "service", "page"]) {
       const createdResponse = await send("/api/admin/content", "POST", cookie, {
         kind,
       });
@@ -81,9 +81,29 @@ test("public toolbar session: guest, real login, expiry, protected create and lo
       );
       assert.equal(rows[0].status, "draft");
       assert.equal(rows[0].kind, kind);
+      const legacy = await send(`/admin/content/${result.id}`, "GET", cookie);
+      assert.equal(legacy.status, 307);
+      assert.equal(legacy.headers.get("location"), result.href);
+      assert.equal((await send(result.href, "GET", cookie)).status, 200);
+      const list = await (
+        await send("/api/admin/content", "GET", cookie)
+      ).json();
+      const item = list.find((entry: { id: string }) => entry.id === result.id);
+      item.slug = `renamed-${result.id}`;
       assert.equal(
-        (await send(`/admin/content/${result.id}`, "GET", cookie)).status,
+        (await send(`/api/admin/content/${item.id}`, "PUT", cookie, item))
+          .status,
         200,
+      );
+      const renamed =
+        result.href.substring(0, result.href.lastIndexOf("/") + 1) + item.slug;
+      assert.equal((await send(result.href, "GET", cookie)).status, 404);
+      assert.equal((await send(renamed, "GET", cookie)).status, 200);
+      assert.equal(
+        (await send(`/admin/content/${item.id}`, "GET", cookie)).headers.get(
+          "location",
+        ),
+        renamed,
       );
     }
     await query(
@@ -114,8 +134,10 @@ test("public toolbar session: guest, real login, expiry, protected create and lo
       false,
     );
   } finally {
-    for (const contentId of created)
+    for (const contentId of created) {
+      await query("DELETE FROM content_revisions WHERE content_id=?", [contentId]);
       await query("DELETE FROM content WHERE id=?", [contentId]);
+    }
     await query("DELETE FROM sessions WHERE admin_id=?", [id]);
     await query("DELETE FROM admins WHERE id=?", [id]);
     await pool().end();

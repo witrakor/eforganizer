@@ -23,6 +23,22 @@
   margin-bottom: 28px;
   font-size: 12px;
 }
+.admin-shell .admin-view-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #142c41;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.admin-shell .admin-view-site:hover {
+  background: #e9eeeb;
+}
 .admin-shell .admin-sidebar {
   width: 236px;
   padding: 30px 22px;
@@ -557,6 +573,18 @@
     font-size: 15px;
     letter-spacing: 0.12em;
   }
+  .admin-mobile-bar .admin-mobile-view-site {
+    width: auto;
+    gap: 6px;
+    padding: 0 8px;
+    font-size: 13px;
+    white-space: nowrap;
+    border: 1px solid #ffffff40;
+    border-radius: 6px;
+  }
+  .admin-shell .admin-view-site {
+    display: none;
+  }
   .admin-mobile-bar small {
     display: block;
     text-align: center;
@@ -723,7 +751,7 @@
   .editor-heading .editor-top {
     width: 100%;
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 8px;
   }
   .editor-heading .editor-top > * {
@@ -812,9 +840,12 @@
   }
 }
 .home-team-editor-image {
-  width: 100%;
-  max-height: 320px;
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 400px);
+  max-height: 260px;
+  align-self: flex-start;
+  object-fit: contain;
   border-radius: 10px;
 }
 .media-usage {
@@ -888,4 +919,162 @@
   padding: 16px;
   border: 1px solid #dce2e7;
   border-radius: 8px;
+}
+
+/* Homepage editing follows the public page order and uses visual choices. */
+.home-page-map { margin: 20px 0; padding: 20px; border: 1px solid #dce2e7; border-radius: 12px; background: #f8fafb; }
+.home-page-map h3 { margin: 0; }
+.home-page-map ol { list-style: none; padding: 0; margin: 16px 0; display: grid; gap: 6px; }
+.home-page-map li button { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 10px 12px; background: white; border: 1px solid #dce2e7; border-radius: 8px; }
+.home-page-map li button > span:nth-child(2) { flex: 1; min-width: 0; }
+.home-page-map small { display: block; color: #607080; margin-top: 3px; }
+.home-page-map li button > span:last-child { font-size: 11px; white-space: nowrap; }
+.home-page-map button[aria-pressed="true"], .home-content-picker button[aria-pressed="true"] { background: #eaf2f5; border-color: #17374e; color: #17374e; }
+.home-page-map button:disabled { opacity: .7; }
+.home-map-number { color: #887649; font-size: 12px; }
+.hero-edit-card { border: 1px solid #dce2e7; border-radius: 10px; margin: 16px 0; padding: 12px; }
+.hero-edit-card-heading { display: flex; align-items: center; gap: 12px; }
+.hero-edit-card-heading > img { width: 100px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; }
+.hero-edit-card-heading > div { flex: 1; min-width: 0; }
+.hero-edit-card-heading p { font-size: 13px; margin: 4px 0; }
+.hero-edit-card-heading button { flex-shrink: 0; }
+.home-content-picker { background: #f8fafb; border: 1px solid #bccbd5; padding: 16px; margin-block: 16px; border-radius: 12px; }
+.home-choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px; margin-block: 16px; max-height: 480px; overflow: auto; padding: 3px; }
+.admin-shell .home-choice-card { padding: 0; display: flex; flex-direction: column; text-align: left; overflow: hidden; background: white; border: 2px solid #dce2e7; border-radius: 8px; }
+.home-choice-card img, .home-choice-placeholder { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.home-choice-card > span { padding: 9px; }
+.home-choice-card strong, .home-choice-card small { display: block; }
+.home-choice-card small { color: #607080; font-size: 11px; margin-bottom: 4px; }
+.admin-shell .home-choice-card[aria-pressed="true"] { border-color: #17374e; background: #eaf2f5; }
+.home-selected-content { display: flex; align-items: center; gap: 10px; }
+.home-selected-content img { width: 64px; aspect-ratio: 16 / 9; object-fit: cover; }
+.home-page-map button:focus-visible, .home-choice-card:focus-visible { outline: 3px solid #887649; outline-offset: 2px; }
+@media (max-width: 700px) {
+  .home-page-map { padding: 12px; }
+  .hero-edit-card-heading { flex-wrap: wrap; }
+  .hero-edit-card-heading > img { width: 72px; }
+  .hero-edit-card-heading > button { margin-left: auto; }
+  .home-page-map li button > span:last-child { display: none; }
+}
+.admin-shell .editor-section-heading { scroll-margin-top: 160px; }
+
+
+/* Compact content editing with proportionate image previews. */
+.admin-shell .content-management-editor > .admin-panel { padding: 20px; }
+.content-management-editor .editor-fields { gap: 16px; }
+.admin-shell .content-management-editor .field-label { margin-bottom: 0; gap: 5px; }
+.admin-shell .content-management-editor textarea { padding: 8px 11px; line-height: 1.6; }
+.content-management-editor .editor-section-heading { padding-bottom: 10px; margin-bottom: 0; }
+.content-management-editor .editor-section-heading p { margin: 4px 0 0; font-size: 13px; }
+.content-management-editor .editor-tabs { margin-bottom: 12px; padding-bottom: 10px; }
+.content-management-editor .home-page-map { margin: 0 0 16px; padding: 10px 14px; }
+.content-management-editor .home-page-map summary { padding: 2px 0; }
+.content-management-editor .home-page-map summary small { font-size: 12px; font-weight: 400; }
+.content-management-editor .home-page-map ol { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 10px 0; }
+.content-management-editor .home-page-map li button { padding: 8px; gap: 8px; height: 100%; }
+.content-management-editor .home-page-map li button > span:last-child { display: none; }
+.content-management-editor .home-page-map small { font-size: 12px; }
+.content-management-editor .home-page-map .editor-help { margin: 8px 0; }
+.admin-shell .content-management-editor .home-settings details { margin-top: 8px; padding: 10px; }
+.admin-shell .content-management-editor .home-settings fieldset { margin: 12px 0; padding: 12px; }
+.content-management-editor .hero-edit-card { margin: 10px 0; }
+.content-management-editor .home-choice-card img { object-fit: contain; background: #f3f5f7; }
+@media (max-width: 700px) {
+  .admin-shell .content-management-editor > .admin-panel { padding: 14px; }
+  .content-management-editor .home-page-map ol { grid-template-columns: 1fr; }
+  .admin-shell .content-management-editor .editor-section-heading { scroll-margin-top: 260px; }
+}
+
+.home-inactive-sections { margin: 12px 0; padding-top: 10px; border-top: 1px solid #dce2e7; }
+.home-inactive-sections ul { padding: 0; list-style: none; display: grid; gap: 6px; }
+.home-inactive-sections li button { border-style: dashed; }
+.admin-shell .home-section-status { padding: 10px 12px; background: #fff7e8; border: 1px solid #dfc795; border-radius: 8px; color: #694b19; }
+.home-layout-status { display: block; font-size: 12px; color: #607080; }
+
+/* The same compact, section-based editor is used for all content types. */
+.content-media-panel .editor-cover { width: min(100%, 420px); height: auto; aspect-ratio: auto; padding: 0; background: #f3f5f7; border-radius: 10px; }
+.content-media-panel .editor-cover img { display: block; position: static; width: 100%; height: auto; max-height: 280px; object-fit: contain; }
+.admin-shell .content-media-panel .gallery-editor { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.content-media-panel .gallery-editor .gallery-item > img { width: 100%; height: 150px; object-fit: contain; background: #f3f5f7; }
+.content-media-panel .gallery-item > div { display: flex; justify-content: space-between; }
+.content-default-gallery > img { width: 100%; height: 130px; object-fit: contain; background: #f3f5f7; border-radius: 8px; }
+.content-management-editor a.home-choice-card { color: inherit; text-decoration: none; }
+.content-management-editor a.home-choice-card:hover { border-color: #17374e; }
+.content-management-editor .editor-side .field-label + .field-label { margin-top: 12px; }
+.content-management-editor .editor-side .check-label { margin-top: 12px; }
+
+.editor-public-url { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-top: 4px; font-size: 12px; color: #607080; }
+.editor-public-url a { color: #31495f; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; min-width: 0; }
+.editor-public-url a svg { display: inline; vertical-align: middle; margin-left: 4px; }
+.editor-url-draft { overflow-wrap: anywhere; min-width: 0; }
+.admin-shell .editor-heading > div:first-child { min-width: 0; }
+.admin-shell .content-delete-button,
+.admin-dialog .content-delete-button { color: #a52b2b; background: #fff4f2; border: 1px solid #e7b9b3; }
+.admin-shell .content-delete-button:hover,
+.admin-dialog .content-delete-button:hover { background: #ffe8e4; }
+.admin-dialog.content-delete-dialog { width: min(420px, calc(100vw - 32px)); padding: 20px; border-radius: 12px; }
+.content-delete-dialog h2 { margin: 0 0 12px; font-size: 22px; line-height: 1.4; }
+.content-delete-dialog p { margin: 8px 0; font-size: 14px; overflow-wrap: anywhere; line-height: 1.6; }
+.content-delete-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.admin-dialog.content-delete-dialog .button { min-height: 44px; padding: 8px 12px; font-size: 13px; gap: 8px; }
+.content-delete-error { color: #a52b2b; }
+
+.editor-service-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-block: 16px; }
+.admin-shell .editor-service-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid #dce2d8; border-radius: 8px; background: #faf9f6; color: #203139; text-align: left; text-decoration: none; min-width: 0; }
+.admin-shell .editor-service-card:hover { border-color: #887649; }
+.editor-service-card:focus-visible { outline: 3px solid #887649; outline-offset: 2px; }
+.editor-service-number { display: flex; justify-content: space-between; color: #887649; font-size: 12px; }
+.editor-service-art { display: flex; justify-content: center; color: #8b9e89; }
+.editor-service-art svg { width: 130px; max-width: 100%; height: 96px; }
+.editor-service-card strong { font-size: 14px; line-height: 1.6; }
+.editor-service-examples { color: #65726c; font-size: 12px; }
+.editor-service-card small { margin-top: auto; padding-top: 8px; color: #607080; font-size: 11px; }
+.editor-service-drafts { margin-block: 20px; }
+@media (max-width: 1100px) { .editor-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .editor-service-grid { grid-template-columns: 1fr; } }
+
+/* Keep the editing workspace dense without shrinking touch targets. */
+.admin-main:has(.content-management-editor) .admin-topbar { height: 60px; margin-bottom: 12px; }
+.admin-shell .editor-heading { padding: 10px 0; margin-bottom: 16px; gap: 14px; }
+.admin-shell .editor-heading h1 { font-size: 22px !important; margin: 0; }
+.admin-shell .editor-heading p { font-size: 12px; }
+.admin-shell .editor-heading .text-link { padding-bottom: 3px; font-size: 12px; }
+.admin-shell .editor-heading .button { padding: 8px 12px; font-size: 13px; min-height: 44px; gap: 8px; }
+.admin-shell .content-management-editor { gap: 16px; }
+.admin-shell .content-management-editor .admin-panel { padding: 16px; border-radius: 10px; }
+.admin-shell .content-management-editor .admin-panel h2 { font-size: 17px; margin-top: 0; margin-bottom: 10px; }
+.content-management-editor .editor-fields { gap: 12px; }
+.admin-shell .content-management-editor .field-label { font-size: 13px; gap: 4px; margin-bottom: 0; }
+.admin-shell .content-management-editor input:not([type="checkbox"]):not([type="range"]),
+.admin-shell .content-management-editor select { min-height: 38px; padding: 7px 10px; font-size: 14px; }
+.admin-shell .content-management-editor textarea { padding: 7px 10px; line-height: 1.5; font-size: 14px; }
+.content-management-editor .editor-title-input { min-height: 56px; }
+.content-management-editor .editor-tabs { margin-bottom: 10px; padding-bottom: 10px; gap: 6px; }
+.admin-shell .content-management-editor .editor-tabs button { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+.content-management-editor .content-section-map { margin-bottom: 12px; padding: 8px 12px; }
+.content-management-editor .content-section-map summary { font-size: 13px; }
+.content-management-editor .content-section-map:not([open]) summary small { display: none; }
+.content-management-editor .editor-section-heading { padding-bottom: 8px; }
+.content-management-editor .editor-section-heading p { margin: 0; font-size: 12px; }
+.admin-shell .content-management-editor .editor-section-heading h2 { margin-bottom: 4px; }
+.content-management-editor .editor-side .editor-help { font-size: 12px; line-height: 1.5; }
+.content-management-editor .editor-side .admin-panel { margin-bottom: 12px; }
+.editor-publish-row { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 10px; margin-top: 12px; }
+.admin-shell .content-management-editor .editor-publish-row .field-label { margin-top: 0; min-width: 0; }
+.editor-publish-row + .field-label { margin-top: 12px; }
+.content-management-editor .editor-side .check-label { font-size: 12px; margin-bottom: 0; }
+.editor-history summary { font-size: 14px; font-weight: 600; cursor: pointer; }
+.editor-history[open] summary { margin-bottom: 12px; }
+.editor-history > button { font-size: 13px; border: 1px solid #c8d2dc; background: #f8fafb; border-radius: 6px; padding: 6px 10px; }
+@media (max-width: 700px) {
+  .admin-main:has(.content-management-editor) .admin-topbar { height: 44px; margin-bottom: 8px; }
+  .admin-shell .editor-heading { position: static; }
+  .admin-shell .editor-heading h1 { font-size: 20px !important; }
+  .admin-shell .content-management-editor .admin-panel { padding: 14px; }
+  .admin-shell .content-management-editor input:not([type="checkbox"]):not([type="range"]),
+  .admin-shell .content-management-editor select,
+  .admin-shell .content-management-editor textarea { min-height: 44px; font-size: 16px; }
+  .admin-shell .content-management-editor .editor-tabs button { min-height: 44px; padding-inline: 8px; font-size: 12px; }
+  .content-management-editor .content-section-map summary { min-height: 28px; }
+  .content-management-editor .editor-side { gap: 0; }
 }

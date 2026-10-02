@@ -21,16 +21,24 @@ export default function HeroSlideshow({
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
+  const [compact, setCompact] = useState(true);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const th = locale === "th";
   const multiple = slides.length > 1;
-  const playing = multiple && !paused && !hovered && visible && !reducedMotion;
+  const playing =
+    multiple && !paused && !hovered && visible && !reducedMotion && !compact;
 
   useEffect(() => {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(preference.matches);
+    const mobile = window.matchMedia("(max-width: 700px)");
+    const update = () => {
+      setReducedMotion(preference.matches);
+      setCompact(mobile.matches);
+    };
     update();
     preference.addEventListener("change", update);
+    mobile.addEventListener("change", update);
     let onScreen = false;
     const visibility = () => setVisible(onScreen && !document.hidden);
     const observer = new IntersectionObserver(
@@ -45,6 +53,7 @@ export default function HeroSlideshow({
     return () => {
       observer.disconnect();
       preference.removeEventListener("change", update);
+      mobile.removeEventListener("change", update);
       document.removeEventListener("visibilitychange", visibility);
     };
   }, []);
@@ -69,6 +78,36 @@ export default function HeroSlideshow({
       role="region"
       aria-roledescription={th ? "สไลด์ภาพผลงาน" : "carousel"}
       aria-label={th ? "ภาพบรรยากาศงานอีเวนต์" : "Event photography"}
+      tabIndex={compact && multiple ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (!compact || !multiple || event.target !== event.currentTarget)
+          return;
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+          event.preventDefault();
+          select(active + (event.key === "ArrowLeft" ? -1 : 1));
+        }
+      }}
+      onTouchStart={(event) => {
+        const touch = event.touches[0];
+        touchStart.current =
+          event.touches.length === 1
+            ? { x: touch.clientX, y: touch.clientY }
+            : null;
+      }}
+      onTouchEnd={(event) => {
+        const start = touchStart.current;
+        touchStart.current = null;
+        if (!start || !multiple) return;
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - start.x;
+        const dy = touch.clientY - start.y;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+          select(active + (dx < 0 ? 1 : -1));
+        }
+      }}
+      onTouchCancel={() => {
+        touchStart.current = null;
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocusCapture={(event) => {

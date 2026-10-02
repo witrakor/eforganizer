@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Check, ImageIcon } from "lucide-react";
 import type { Content, Locale } from "@/lib/types";
 import { serviceCategory, serviceCover } from "@/lib/service-catalog";
 import { eventPhotos } from "@/lib/event-photos";
@@ -26,6 +26,7 @@ export function ServiceDetail({
   const th = locale === "th";
   const photos = eventPhotos(item);
   const generatedCover = item.coverOverride ? null : serviceCover(item.slug);
+  const cover = generatedCover || item.image;
   return (
     <>
       <section className="container service-detail-intro">
@@ -54,13 +55,27 @@ export function ServiceDetail({
           <span>ELITE FLOW</span>
         </div>
         <div className="service-detail-photo">
-          <Image
-            src={generatedCover || item.image}
-            fill
-            priority
-            sizes="(max-width: 700px) 100vw, 80vw"
-            alt={`${generatedCover ? (th ? "ภาพคอนเซปต์" : "Concept image") : th ? "ภาพบรรยากาศ" : "Event photograph"}: ${copy.title}`}
-          />
+          {cover ? (
+            <Image
+              src={cover}
+              fill
+              priority
+              sizes="(max-width: 700px) 100vw, 80vw"
+              alt={`${generatedCover ? (th ? "ภาพคอนเซปต์" : "Concept image") : th ? "ภาพบรรยากาศ" : "Event photograph"}: ${copy.title}`}
+            />
+          ) : (
+            <div className="service-detail-photo-empty" role="status">
+              <ImageIcon size={32} aria-hidden="true" />
+              <strong>
+                {th ? "ยังไม่ได้เลือกภาพหลัก" : "No cover image selected"}
+              </strong>
+              <span>
+                {th
+                  ? "เลือกภาพในส่วน “ภาพหลัก” แล้วเปิดดูตัวอย่างอีกครั้ง"
+                  : "Choose an image in the Cover image section, then preview again."}
+              </span>
+            </div>
+          )}
           {generatedCover && (
             <span className="service-detail-photo-label">
               {th ? "ภาพคอนเซปต์บริการ" : "Service concept image"}

@@ -1,6 +1,18 @@
 import type { Locale } from "./types";
 // Defaults mirror the public page; editing a field stores an explicit override.
 export const homeEditorDefaults: Record<string, Record<Locale, string>> = {
+  partnersTitle: {
+    th: "เครือข่ายที่ร่วมสร้างงานคุณภาพ",
+    en: "A network built on collaboration",
+  },
+  partnersDescription: {
+    th: "ประสานความเชี่ยวชาญที่แตกต่าง เพื่อให้งานทุกส่วนลงตัว",
+    en: "Bringing complementary expertise together, down to the finest detail.",
+  },
+  testimonialsTitle: {
+    th: "จากประสบการณ์ของลูกค้า",
+    en: "In our clients’ words",
+  },
   workTitle: {
     th: "ภาพจริง จากประสบการณ์ของทีม",
     en: "Real events. Real team experience.",

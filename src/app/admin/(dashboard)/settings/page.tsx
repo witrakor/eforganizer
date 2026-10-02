@@ -1,3 +1,4 @@
+import { adminContentHref } from "@/lib/admin-content-url";
 import { query } from "@/lib/db";
 import { content } from "@/lib/content";
 import Link from "next/link";
@@ -20,7 +21,7 @@ export default async function Page() {
           ทั้งสองภาษา
         </p>
         {c && (
-          <Link className="button button-small" href={`/admin/content/${c.id}`}>
+          <Link className="button button-small" href={adminContentHref(c)}>
             แก้ไขข้อมูลติดต่อ ↗
           </Link>
         )}

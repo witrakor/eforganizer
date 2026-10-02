@@ -34,6 +34,38 @@ export function homeOrder(page: Content) {
     ? page.sections.filter((section) => homeSections.includes(section.id))
     : homeSections.map((id) => ({ id, enabled: true }));
 }
+/** Shared by the public homepage and its editor so visibility stays in sync. */
+export function publishedRelationships(
+  page: Content,
+  kind: Relationship["kind"],
+  locale: Locale,
+) {
+  return (page.relationships || []).filter(
+    (item) => item.kind === kind && item.published && item[locale].name,
+  );
+}
+export function homeSectionState(
+  page: Content,
+  id: HomeSection,
+  locale: Locale,
+): "visible" | "hidden" | "empty" {
+  if (!homeOrder(page).some((section) => section.id === id && section.enabled))
+    return "hidden";
+  const kind =
+    id === "partners"
+      ? "partner"
+      : id === "testimonials"
+        ? "testimonial"
+        : null;
+  return kind && !publishedRelationships(page, kind, locale).length
+    ? "empty"
+    : "visible";
+}
+export const homeSectionStateLabels = {
+  visible: "แสดงบนหน้าแรก",
+  hidden: "ปิดการแสดงส่วนนี้",
+  empty: "ยังไม่มีรายการที่เผยแพร่และมีชื่อในภาษานี้",
+};
 export function selectedContent(
   page: Content,
   kind: "service" | "project" | "post",

@@ -184,7 +184,7 @@ export function EventHero({
             slides={slides}
             locale={l}
           />
-        ) : (
+        ) : page.heroSlides?.length === 0 ? null : (
           <div className="signature-photo">
             <Image
               src={

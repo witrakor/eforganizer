@@ -1,4 +1,5 @@
 "use client";
+import { adminContentHref } from "@/lib/admin-content-url";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -63,7 +64,7 @@ export default function ContentList({ items }: { items: Content[] }) {
       });
       if (!r.ok) throw new Error("สร้างเนื้อหาไม่สำเร็จ กรุณาลองใหม่");
       const d = await r.json();
-      router.push(`/admin/content/${d.id}`);
+      router.push(d.href);
     } catch (e) {
       setError((e as Error).message);
       setBusy(false);
@@ -162,7 +163,7 @@ export default function ContentList({ items }: { items: Content[] }) {
             {visible.map((i) => (
               <tr key={i.id}>
                 <td>
-                  <Link href={`/admin/content/${i.id}`}>
+                  <Link href={adminContentHref(i)}>
                     <strong>{contentName(i)}</strong>
                     <small>/{i.slug}</small>
                   </Link>
@@ -192,7 +193,7 @@ export default function ContentList({ items }: { items: Content[] }) {
                 <td>
                   <Link
                     className="text-link"
-                    href={`/admin/content/${i.id}`}
+                    href={adminContentHref(i)}
                     aria-label={`แก้ไข ${contentName(i)}`}
                   >
                     แก้ไข <ArrowUpRight size={16} />

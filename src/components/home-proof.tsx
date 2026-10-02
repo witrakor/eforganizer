@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "./site-link";
 import type { Content, Locale } from "@/lib/types";
 import { ArrowUpRight } from "lucide-react";
-import { homeText } from "@/lib/home-content";
+import { homeText, publishedRelationships } from "@/lib/home-content";
 export function HomeProof({
   page,
   locale: l,
@@ -13,9 +13,7 @@ export function HomeProof({
   locale: Locale;
   kind: "client" | "partner" | "testimonial";
 }) {
-  const items = (page.relationships || []).filter(
-    (item) => item.kind === kind && item.published && item[l].name,
-  );
+  const items = publishedRelationships(page, kind, l);
   if (!items.length) return null;
   const title =
     kind === "client"

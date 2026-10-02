@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { X, Upload } from "lucide-react";
-import type { Media } from "@/lib/types";
+import { contentImageUrls } from "@/lib/content-images";
+import { mediaUsage } from "@/lib/admin-content";
+import type { Content, Media } from "@/lib/types";
 import AdminDialog from "./admin-dialog";
 export default function MediaPicker({
   onSelect,
@@ -9,12 +11,16 @@ export default function MediaPicker({
   multiple = false,
   onSelectMany,
   maxSelection = 30,
+  content,
+  excludedUrls = [],
 }: {
   onSelect: (url: string) => void;
   onClose: () => void;
   multiple?: boolean;
   onSelectMany?: (urls: string[]) => void;
   maxSelection?: number;
+  content?: Content;
+  excludedUrls?: string[];
 }) {
   const [files, setFiles] = useState<Media[]>([]),
     [search, setSearch] = useState(""),
@@ -22,6 +28,8 @@ export default function MediaPicker({
     [limit, setLimit] = useState(24),
     [selected, setSelected] = useState<string[]>([]),
     [busy, setBusy] = useState(false);
+  const [scope, setScope] = useState(content ? "content" : "all");
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/admin/media", { signal: controller.signal })
@@ -39,8 +47,26 @@ export default function MediaPicker({
       });
     return () => controller.abort();
   }, []);
-  const filtered = files.filter((f) =>
-    (f.name + f.alt).toLowerCase().includes(search.toLowerCase()),
+  const relatedUrls = content ? contentImageUrls(content) : [];
+  const knownUrls = new Set(files.map((file) => file.url));
+  const choices = [
+    ...relatedUrls
+      .filter((url) => !knownUrls.has(url))
+      .map((url, index) => ({
+        id: url,
+        url,
+        name: `ภาพในเนื้อหา ${index + 1}`,
+        alt: "",
+      })),
+    ...files,
+  ];
+  const filtered = choices.filter(
+    (f) =>
+      (scope === "all" ||
+        relatedUrls.includes(f.url) ||
+        uploadedUrls.includes(f.url) ||
+        (content && mediaUsage([content], f.url).length > 0)) &&
+      (f.name + f.alt).toLowerCase().includes(search.toLowerCase()),
   );
   async function upload(e: React.ChangeEvent<HTMLInputElement>) {
     const uploads = Array.from(e.target.files || []);
@@ -58,6 +84,7 @@ export default function MediaPicker({
         });
         const data = await r.json();
         if (!r.ok) throw Error(data.error || "อัปโหลดไม่สำเร็จ");
+        setUploadedUrls((urls) => [...urls, data.url]);
         count++;
       }
       setMessage(`อัปโหลดแล้ว ${count} รูป · เลือกรูปด้านล่างเพื่อใช้งาน`);
@@ -98,6 +125,34 @@ export default function MediaPicker({
           <X size={20} />
         </button>
       </div>
+      {content && (
+        <div className="admin-search-row" role="group" aria-label="ขอบเขตภาพ">
+          <button
+            type="button"
+            className="button button-small button-ghost"
+            aria-pressed={scope === "content"}
+            onClick={() => {
+              setScope("content");
+              setSearch("");
+              setLimit(24);
+            }}
+          >
+            ภาพของเนื้อหานี้
+          </button>
+          <button
+            type="button"
+            className="button button-small button-ghost"
+            aria-pressed={scope === "all"}
+            onClick={() => {
+              setScope("all");
+              setSearch("");
+              setLimit(24);
+            }}
+          >
+            คลังภาพทั้งหมด
+          </button>
+        </div>
+      )}
       <div className="admin-search-row">
         <input
           autoFocus
@@ -138,6 +193,7 @@ export default function MediaPicker({
             <button
               disabled={
                 busy ||
+                excludedUrls.includes(f.url) ||
                 (multiple &&
                   !selected.includes(f.url) &&
                   selected.length >= maxSelection)
@@ -161,6 +217,10 @@ export default function MediaPicker({
             </button>
             <div className="media-card-info">
               <strong>{f.alt || f.name}</strong>
+              {content?.image === f.url && <span> · ภาพปกปัจจุบัน</span>}
+              {content?.gallery.includes(f.url) && content.image !== f.url && (
+                <span> · อยู่ในแกลเลอรี</span>
+              )}
             </div>
           </div>
         ))}

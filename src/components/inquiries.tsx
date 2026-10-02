@@ -22,7 +22,24 @@ const labels: Record<string, string> = {
   closed: "ปิดงาน",
   archived: "เก็บถาวร",
 };
-export default function Inquiries({ initial }: { initial: Inquiry[] }) {
+const budgetLabels: Record<string, string> = {
+  undecided: "ต้องการคำแนะนำ",
+  "under-100k": "ต่ำกว่า 100,000 บาท",
+  "100k-300k": "100,000–300,000 บาท",
+  "300k-500k": "300,000–500,000 บาท",
+  "500k-plus": "500,000 บาทขึ้นไป",
+};
+export default function Inquiries({
+  initial,
+  eventTypeLabels,
+}: {
+  initial: Inquiry[];
+  eventTypeLabels: Record<string, string>;
+}) {
+  const eventType = (value: string) =>
+    Object.hasOwn(eventTypeLabels, value)
+      ? eventTypeLabels[value]
+      : value || "ยังไม่ระบุ";
   const [items, setItems] = useState(initial),
     [filter, setFilter] = useState("all"),
     [notice, setNotice] = useState("");
@@ -32,7 +49,14 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
   const visible = items.filter(
     (i) =>
       (filter === "all" || i.status === filter) &&
-      [i.name, i.email, i.phone, i.event_type, i.message]
+      [
+        i.name,
+        i.email,
+        i.phone,
+        i.event_type,
+        eventType(i.event_type),
+        i.message,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(search.trim().toLowerCase()),
@@ -87,7 +111,7 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
       <input
         className="inquiry-search"
         aria-label="ค้นหาข้อความ"
-        placeholder="ค้นหาชื่อ อีเมล โทรศัพท์ หรือรายละเอียดงาน…"
+        placeholder="ค้นหาชื่อ อีเมล โทรศัพท์ ประเภทงาน หรือรายละเอียดงาน…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -97,7 +121,7 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
             <div>
               <h3>{i.name}</h3>
               <p>
-                {i.event_type} · {bangkokDate(i.created_at)}
+                {eventType(i.event_type)} · {bangkokDate(i.created_at)}
               </p>
             </div>
             <span className={`badge ${i.status}`}>{labels[i.status]}</span>
@@ -105,12 +129,18 @@ export default function Inquiries({ initial }: { initial: Inquiry[] }) {
           <div className="inquiry-body">
             <div className="inquiry-data">
               {[
+                ["ประเภทงาน", eventType(i.event_type)],
                 ["อีเมล", i.email],
                 ["โทรศัพท์", i.phone],
                 ["วันที่จัดงาน", i.event_date],
                 ["สถานที่", i.location],
                 ["จำนวนคน", i.guests],
-                ["งบประมาณ", i.budget],
+                [
+                  "งบประมาณ",
+                  Object.hasOwn(budgetLabels, i.budget)
+                    ? budgetLabels[i.budget]
+                    : i.budget,
+                ],
               ].map(([label, value]) => (
                 <div key={label}>
                   <small>{label}</small>

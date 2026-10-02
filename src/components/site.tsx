@@ -6,6 +6,7 @@ import { EventCategories } from "./event-categories";
 import { HomeProof } from "./home-proof";
 import {
   homeOrder,
+  homeSectionState,
   homeProjectImage,
   homeText,
   selectedContent,
@@ -508,7 +509,10 @@ export function Home({
   return (
     <div className="home-page">
       <EventHero page={page} projects={projects} posts={posts} locale={l} />
-      <EventCategories locale={l} items={serviceMenuItems(services)} />
+      <EventCategories
+        locale={l}
+        items={serviceMenuItems(services).slice(0, 8)}
+      />
       <section
         className="home-partner-band"
         aria-labelledby="home-partner-title"
@@ -614,7 +618,7 @@ export function Home({
         </div>
       </section>
       {homeOrder(page)
-        .filter((s) => s.enabled)
+        .filter((s) => homeSectionState(page, s.id, l) === "visible")
         .map((s) => (
           <div key={s.id} data-home-section={s.id}>
             {sections[s.id]}

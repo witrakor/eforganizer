@@ -6,9 +6,35 @@ import {
   contentName,
   filterContent,
   mediaUsage,
+  isSystemPage,
 } from "../src/lib/admin-content";
 import { catalogServices, serviceMenuItems } from "../src/lib/service-catalog";
+import {
+  homeSectionState,
+  publishedRelationships,
+} from "../src/lib/home-content";
+import { contentEditorSections } from "../src/lib/content-editor-sections";
 import { contentSchema } from "../src/lib/validation";
+import {
+  adminContentHref,
+  adminContentKind,
+} from "../src/lib/admin-content-url";
+test("editor addresses distinguish content types with the same slug", () => {
+  for (const [kind, segment] of [
+    ["page", "pages"],
+    ["service", "services"],
+    ["project", "projects"],
+    ["post", "articles"],
+  ] as const) {
+    assert.equal(
+      adminContentHref({ kind, slug: "home" }),
+      `/admin/content/${segment}/home`,
+    );
+    assert.equal(adminContentKind(segment), kind);
+  }
+  assert.equal(adminContentKind("constructor"), null);
+  assert.equal(adminContentKind("unknown"), null);
+});
 const item = (patch: Partial<Content> = {}): Content => ({
   id: randomUUID(),
   kind: "page",
@@ -108,7 +134,42 @@ test("service catalog respects editorial translations instead of replacing saved
   )!;
   assert.equal(menu.en.title, "Edited service");
   assert.equal(menu.th.examples, "รายละเอียดใหม่");
-  assert.ok(catalogServices([]).every((c) => c.th.title && c.en.title));
+  assert.deepEqual(catalogServices([]), []);
+  assert.deepEqual(serviceMenuItems([]), []);
+  assert.ok(catalogServices([], true).every((c) => c.th.title && c.en.title));
+});
+test("missing services stay absent from public catalogs and menus", () => {
+  const service = item({
+    kind: "service",
+    slug: "meetings-conferences",
+    status: "published",
+  });
+  assert.deepEqual(
+    catalogServices([service]).map((c) => c.slug),
+    [service.slug],
+  );
+  assert.deepEqual(
+    serviceMenuItems([service]).map((c) => c.slug),
+    [service.slug],
+  );
+});
+test("deletion protection applies only to fixed system pages", () => {
+  for (const slug of [
+    "home",
+    "about",
+    "services",
+    "work",
+    "journal",
+    "contact",
+    "privacy",
+  ])
+    assert.equal(isSystemPage(item({ slug })), true);
+  assert.equal(isSystemPage(item({ kind: "post", slug: "home" })), false);
+  assert.equal(isSystemPage(item({ slug: "custom-page" })), false);
+  assert.equal(
+    isSystemPage(item({ kind: "service", slug: "meetings-conferences" })),
+    false,
+  );
 });
 test("home section overrides and explicit service covers survive validation", () => {
   const home = item();
@@ -120,4 +181,68 @@ test("home section overrides and explicit service covers survive validation", ()
   assert.equal(result.th.heroSubtitle, "หัวข้อรอง");
   assert.equal(result.en.heroDescription, "New introduction");
   assert.equal(result.coverOverride, true);
+});
+
+test("homepage visibility matches locale, publication and section switches", () => {
+  const home = item();
+  assert.equal(homeSectionState(home, "work", "th"), "visible");
+  assert.equal(homeSectionState(home, "partners", "th"), "empty");
+  assert.equal(homeSectionState(home, "testimonials", "th"), "empty");
+  home.relationships = [
+    {
+      id: randomUUID(),
+      kind: "partner",
+      image: "",
+      href: "",
+      published: false,
+      th: { name: "พันธมิตร", detail: "" },
+      en: { name: "", detail: "" },
+    },
+  ];
+  assert.equal(homeSectionState(home, "partners", "th"), "empty");
+  home.relationships[0].published = true;
+  assert.equal(homeSectionState(home, "partners", "th"), "visible");
+  assert.equal(homeSectionState(home, "partners", "en"), "empty");
+  assert.equal(publishedRelationships(home, "partner", "th").length, 1);
+  assert.equal(homeSectionState(home, "testimonials", "th"), "empty");
+  home.sections = [{ id: "partners", enabled: false }];
+  assert.equal(homeSectionState(home, "partners", "th"), "hidden");
+  assert.equal(homeSectionState(home, "work", "th"), "hidden");
+});
+
+test("content editor exposes only sections supported by each public template", () => {
+  const ids = (c: Content) => contentEditorSections(c).map((s) => s.id);
+  for (const [slug, kind] of [
+    ["services", "service"],
+    ["work", "project"],
+    ["journal", "post"],
+  ] as const) {
+    const sections = contentEditorSections(item({ slug }));
+    assert.deepEqual(
+      sections.map((s) => s.id),
+      ["intro", "listing", "seo"],
+    );
+    assert.equal(sections.find((s) => s.id === "listing")?.listKind, kind);
+  }
+  assert.deepEqual(ids(item({ slug: "about" })), [
+    "intro",
+    "cover",
+    "body",
+    "items",
+    "gallery",
+    "seo",
+  ]);
+  assert.deepEqual(ids(item({ slug: "contact" })), ["intro", "contact", "seo"]);
+  assert.deepEqual(ids(item({ slug: "privacy" })), ["intro", "body", "seo"]);
+  assert.ok(
+    !ids(item({ kind: "service", slug: "meetings-conferences" })).includes(
+      "body",
+    ),
+  );
+  assert.ok(
+    ids(item({ kind: "service", slug: "custom-service" })).includes("body"),
+  );
+  assert.ok(ids(item({ kind: "post" })).includes("sources"));
+  assert.ok(ids(item({ kind: "project" })).includes("facts"));
+  assert.ok(!ids(item({ kind: "post" })).includes("facts"));
 });
