@@ -34,6 +34,12 @@ export const contentSchema = z
     status: z.enum(["draft", "published"]),
     image: safeImage,
     coverOverride: z.boolean().optional(),
+    imageFocal: z
+      .object({
+        x: z.number().min(0).max(100),
+        y: z.number().min(0).max(100),
+      })
+      .optional(),
     gallery: z.array(safeImage).max(30),
     category: z.string().max(100),
     featured: z.boolean(),
@@ -47,6 +53,9 @@ export const contentSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .optional(),
+    hidePublicDate: z.boolean().optional(),
+    eventDateStatus: z.enum(["unknown", "conflict"]).optional(),
+    eventDateReviewNote: z.string().max(1000).optional(),
     sources: z
       .array(
         z.object({

@@ -1,3 +1,4 @@
+import { coverImageStyle } from "@/lib/content-images";
 import Image from "next/image";
 import { ArrowLeft, ArrowUpRight, Check, ImageIcon } from "lucide-react";
 import type { Content, Locale } from "@/lib/types";
@@ -58,6 +59,7 @@ export function ServiceDetail({
           {cover ? (
             <Image
               src={cover}
+              style={coverImageStyle(item)}
               fill
               priority
               sizes="(max-width: 700px) 100vw, 80vw"
@@ -150,6 +152,7 @@ export function ServiceDetail({
                 <div className="service-detail-related-image">
                   <Image
                     src={project.image}
+                    style={coverImageStyle(project)}
                     fill
                     sizes="(max-width: 700px) 100vw, 30vw"
                     alt={project[locale].title}

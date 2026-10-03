@@ -18,8 +18,17 @@ export async function contents(kind?: string, admin = false) {
   );
   return rows.map(parse).sort((a, b) => {
     if (a.kind !== b.kind) return a.kind.localeCompare(b.kind);
-    if (a.kind === "project" || a.kind === "post")
-      return b.date.localeCompare(a.date) || a.sortOrder - b.sortOrder;
+    if (a.kind === "project" || a.kind === "post") {
+      if (a.kind === "project") {
+        const aUndated = a.hidePublicDate ? 1 : 0;
+        const bUndated = b.hidePublicDate ? 1 : 0;
+        if (aUndated !== bUndated) return aUndated - bUndated;
+        if (aUndated) return a.sortOrder - b.sortOrder;
+      }
+      const aDate = a.kind === "project" ? a.eventDate || a.date : a.date;
+      const bDate = b.kind === "project" ? b.eventDate || b.date : b.date;
+      return bDate.localeCompare(aDate) || a.sortOrder - b.sortOrder;
+    }
     return a.sortOrder - b.sortOrder || b.date.localeCompare(a.date);
   });
 }

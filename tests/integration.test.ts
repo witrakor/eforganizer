@@ -113,9 +113,17 @@ test("admin login, bilingual draft, publish, version conflicts and unpublish", a
   item.en.body = "Persisted English content";
   item.image = "/media/conference.webp";
   assert.equal((await fetch(base + "/th/journal/" + item.slug)).status, 404);
+  item.imageFocal = { x: 23, y: 78 };
   let saved = await request("/api/admin/content/" + id, item, "PUT");
   assert.equal(saved.status, 200);
   item.version = (await saved.json()).version;
+  const reloaded = await (
+    await request("/api/admin/content", undefined, "GET")
+  ).json();
+  assert.deepEqual(reloaded.find((entry: any) => entry.id === id).imageFocal, {
+    x: 23,
+    y: 78,
+  });
   item.status = "published";
   saved = await request("/api/admin/content/" + id, item, "PUT");
   assert.equal(saved.status, 200);

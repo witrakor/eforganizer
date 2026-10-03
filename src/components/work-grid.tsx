@@ -1,10 +1,13 @@
 "use client";
+import { coverImageStyle } from "@/lib/content-images";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "./site-link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import type { Content, Locale } from "@/lib/types";
 import { contentDate } from "@/lib/date";
+
 export default function WorkGrid({
   items,
   services,
@@ -16,10 +19,15 @@ export default function WorkGrid({
 }) {
   const params = useSearchParams();
   const requested = params.get("category") || "all";
-  const category = services.some((s) => s.slug === requested)
+  const urlCategory = services.some((s) => s.slug === requested)
     ? requested
     : "all";
+  const [category, setSelectedCategory] = useState(urlCategory);
+  useEffect(() => {
+    setSelectedCategory(urlCategory);
+  }, [urlCategory]);
   function setCategory(value: string) {
+    setSelectedCategory(value);
     const url = new URL(window.location.href);
     if (value === "all") url.searchParams.delete("category");
     else url.searchParams.set("category", value);
@@ -30,6 +38,7 @@ export default function WorkGrid({
     <>
       <div className="filters">
         <button
+          type="button"
           aria-pressed={category === "all"}
           className={category === "all" ? "selected" : ""}
           onClick={() => setCategory("all")}
@@ -38,6 +47,7 @@ export default function WorkGrid({
         </button>
         {cats.map((c) => (
           <button
+            type="button"
             key={c.id}
             aria-pressed={category === c.slug}
             className={category === c.slug ? "selected" : ""}
@@ -59,8 +69,9 @@ export default function WorkGrid({
               <div className="project-photo">
                 <Image
                   src={p.image}
+                  style={coverImageStyle(p)}
                   fill
-                  sizes="(max-width: 650px) 100vw, 50vw"
+                  sizes="(max-width: 600px) 100vw, (max-width: 1023px) 50vw, (min-width: 1600px) 424px, 350px"
                   alt={p[l].title}
                 />
                 <span className="round-arrow">
@@ -68,14 +79,18 @@ export default function WorkGrid({
                 </span>
               </div>
               <div className="project-caption">
-                <div>
+                <div className="project-caption-meta">
                   <span className="eyebrow">{p[l].eyebrow}</span>
-                  <time className="content-date" dateTime={p.date}>
-                    {contentDate(p.date, l)}
-                  </time>
-                  <h3>{p[l].title}</h3>
+                  {!p.hidePublicDate && (
+                    <time className="content-date" dateTime={p.eventDate || p.date}>
+                      {contentDate(p.eventDate || p.date, l)}
+                    </time>
+                  )}
                 </div>
-                <span>{p[l].subtitle}</span>
+                <h3>{p[l].title}</h3>
+                {p[l].subtitle && (
+                  <p className="project-caption-subtitle">{p[l].subtitle}</p>
+                )}
               </div>
             </Link>
           ))}

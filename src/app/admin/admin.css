@@ -1062,6 +1062,9 @@
 .editor-publish-row { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 10px; margin-top: 12px; }
 .admin-shell .content-management-editor .editor-publish-row .field-label { margin-top: 0; min-width: 0; }
 .editor-publish-row + .field-label { margin-top: 12px; }
+.admin-shell .editor-date-visibility { display: inline-flex; align-items: center; align-self: flex-start; gap: 10px; margin: 0; padding: 9px 12px; border: 1px solid #dce2e7; border-radius: 8px; background: #f8fafb; color: #263d50; font-size: 13px; line-height: 1.5; cursor: pointer; }
+.admin-shell .editor-date-visibility input { width: 16px; height: 16px; flex: 0 0 16px; margin: 0; accent-color: #17374e; }
+.admin-shell .editor-date-review-status { width: fit-content; max-width: 100%; padding: 7px 11px; border: 1px solid #e7d5ad; border-radius: 7px; background: #fff9ed; color: #745624; font-size: 12px; line-height: 1.5; }
 .content-management-editor .editor-side .check-label { font-size: 12px; margin-bottom: 0; }
 .editor-history summary { font-size: 14px; font-weight: 600; cursor: pointer; }
 .editor-history[open] summary { margin-bottom: 12px; }
@@ -1078,3 +1081,7 @@
   .content-management-editor .content-section-map summary { min-height: 28px; }
   .content-management-editor .editor-side { gap: 0; }
 }
+
+.content-media-panel .cover-focal-editor { max-width: 640px; margin-bottom: 16px; }
+.content-media-panel .cover-focal-editor .editor-cover { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+.content-media-panel .cover-focal-editor .editor-cover img { height: 100%; max-height: none; object-fit: cover; }

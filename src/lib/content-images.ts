@@ -27,5 +27,17 @@ export function changeContentCover(content: Content, image: string) {
     throw new Error(
       "แกลเลอรีเต็ม 30 ภาพ กรุณานำภาพออกก่อนเปลี่ยนปกเป็นภาพใหม่",
     );
-  return { image, gallery, coverOverride: true };
+  return {
+    image,
+    gallery,
+    coverOverride: true,
+    imageFocal: image === content.image ? content.imageFocal : undefined,
+  };
+}
+
+export function coverImageStyle(content: Pick<Content, "imageFocal">) {
+  return {
+    objectFit: "cover" as const,
+    objectPosition: `${content.imageFocal?.x ?? 50}% ${content.imageFocal?.y ?? 50}%`,
+  };
 }

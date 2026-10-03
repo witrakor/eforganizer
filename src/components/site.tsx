@@ -1,3 +1,4 @@
+import { coverImageStyle } from "@/lib/content-images";
 import DetailOverview from "./detail-overview";
 import { serviceMenuItems } from "@/lib/service-catalog";
 import type { ReactNode } from "react";
@@ -163,6 +164,7 @@ export function ServiceCards({
               <div className="service-photo">
                 <Image
                   src={s.image}
+                  style={coverImageStyle(s)}
                   fill
                   sizes="(max-width: 650px) 100vw, (max-width: 1000px) 50vw, 33vw"
                   alt={s[l].title}
@@ -234,6 +236,7 @@ export function JournalCards({
           <div className="journal-image">
             <Image
               src={p.image}
+              style={coverImageStyle(p)}
               fill
               sizes="(max-width: 650px) 100vw, 33vw"
               alt={p[l].title}
@@ -241,7 +244,9 @@ export function JournalCards({
           </div>
           <div className="journal-meta">
             <span>{p[l].eyebrow}</span>
-            <time dateTime={p.date}>{contentDate(p.date, l)}</time>
+            {!p.hidePublicDate && (
+              <time dateTime={p.date}>{contentDate(p.date, l)}</time>
+            )}
           </div>
           <h3>{p[l].title}</h3>
           <p>{p[l].description}</p>
@@ -637,18 +642,38 @@ export function Detail({
   related?: Content[];
 }) {
   const c = item[l];
+  const projectDisplayDate =
+    item.kind === "project" && !item.hidePublicDate
+      ? item.eventDate || item.date
+      : undefined;
   return (
     <div className="detail-page">
       <PageIntro item={item} locale={l} />
-      {(item.kind === "project" || item.kind === "post") && (
+      {((item.kind === "project" && projectDisplayDate) ||
+        (item.kind === "post" && !item.hidePublicDate)) && (
         <div className="container publication-meta">
-          <span>
-            {text(l, "เผยแพร่", "Published")}{" "}
-            <time dateTime={item.date}>{contentDate(item.date, l)}</time>
-          </span>
-          {item.eventDate && (
+          {projectDisplayDate && (
             <span>
-              {text(l, "วันที่จัดงาน", "Event date")}:{" "}
+              {item.eventDate
+                ? text(l, "วันที่จัดงาน", "Event date")
+                : text(l, "วันที่", "Date")}: {" "}
+              <time dateTime={projectDisplayDate}>
+                {contentDate(projectDisplayDate, l)}
+              </time>
+              {item.eventDate && item.eventDateEnd && item.eventDateEnd !== projectDisplayDate
+                ? ` – ${contentDate(item.eventDateEnd, l)}`
+                : ""}
+            </span>
+          )}
+          {item.kind === "post" && (
+            <span>
+              {text(l, "เผยแพร่", "Published")} {" "}
+              <time dateTime={item.date}>{contentDate(item.date, l)}</time>
+            </span>
+          )}
+          {item.kind === "post" && item.eventDate && (
+            <span>
+              {text(l, "วันที่จัดงาน", "Event date")}: {" "}
               <time dateTime={item.eventDate}>
                 {contentDate(item.eventDate, l)}
               </time>
@@ -661,6 +686,7 @@ export function Detail({
       )}
       <DetailOverview
         image={item.image}
+        imageFocal={item.imageFocal}
         title={c.title}
         body={
           <section className="detail-story">
@@ -790,6 +816,7 @@ export function Detail({
               <div className="related-feature-image">
                 <Image
                   src={related[0].image}
+                  style={coverImageStyle(related[0])}
                   alt={related[0][l].title}
                   fill
                   sizes="(max-width: 700px) 100vw, 60vw"

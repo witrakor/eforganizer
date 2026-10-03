@@ -18,7 +18,7 @@ import AdminDialog from "./admin-dialog";
 import { serviceCover } from "@/lib/service-catalog";
 import { homeEditorDefaults } from "@/lib/home-editor-defaults";
 import MediaPicker from "./media-picker";
-import { changeContentCover } from "@/lib/content-images";
+import { changeContentCover, coverImageStyle } from "@/lib/content-images";
 import dynamic from "next/dynamic";
 import HomeSettings from "./home-settings";
 import {
@@ -686,16 +686,61 @@ export default function ContentEditor({
               <details className="project-facts" open>
                 <summary>วันที่จัดงานและที่มาข้อมูล</summary>
                 <div className="editor-fields">
+                  {(value.kind === "project" || value.kind === "post") && (
+                    <label className="editor-date-visibility">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(value.hidePublicDate)}
+                        onChange={(e) =>
+                          update({
+                            hidePublicDate: e.target.checked,
+                            ...(value.kind === "project" && e.target.checked
+                              ? { eventDate: undefined, eventDateEnd: undefined }
+                              : {}),
+                          })
+                        }
+                      />
+                      <span>ไม่แสดงวันที่บนหน้าเว็บ</span>
+                    </label>
+                  )}
+                  {value.kind === "project" && value.eventDateStatus && !value.eventDate && (
+                    <div className="editor-date-review-status" role="status">
+                      <strong>
+                        {value.eventDateStatus === "conflict"
+                          ? "วันที่จัดงานขัดแย้งกัน"
+                          : "ยังไม่มีวันที่จัดงานที่ยืนยันได้"}
+                      </strong>
+                    </div>
+                  )}
                   <label className="field-label">
                     วันที่เริ่มงาน
                     <input
                       type="date"
                       value={value.eventDate || ""}
+                      disabled={Boolean(value.hidePublicDate)}
                       onChange={(e) =>
-                        update({ eventDate: e.target.value || undefined })
+                        update({
+                          eventDate: e.target.value || undefined,
+                          hidePublicDate: false,
+                          eventDateStatus: e.target.value
+                            ? undefined
+                            : value.eventDateStatus,
+                        })
                       }
                     />
                   </label>
+                  {value.kind === "project" && (
+                    <label className="field-label">
+                      บันทึกการตรวจสอบวันที่
+                      <textarea
+                        value={value.eventDateReviewNote || ""}
+                        maxLength={1000}
+                        onChange={(e) =>
+                          update({ eventDateReviewNote: e.target.value || undefined })
+                        }
+                      />
+                    </label>
+                  )}
                   <label className="field-label">
                     วันที่สิ้นสุดงาน (ถ้ามี)
                     <input
@@ -867,11 +912,55 @@ export default function ContentEditor({
             {hasImage && (
               <section className="content-media-panel">
                 <p className="editor-help">
-                  กดเลือกรูปจากคลัง ภาพตัวอย่างแสดงเต็มสัดส่วน
+                  เลือกรูปจากคลัง แล้วปรับจุดโฟกัสเพื่อจัดตำแหน่งภาพในกรอบ
                 </p>
                 {displayCover && (
-                  <div className="editor-cover">
-                    <img src={displayCover} alt="ภาพหลัก" />
+                  <div className="cover-focal-editor">
+                    <div className="editor-cover">
+                      <img
+                        src={displayCover}
+                        alt="ตัวอย่างการครอปภาพหลัก"
+                        style={coverImageStyle(value)}
+                      />
+                    </div>
+                    <div className="hero-editor-focus">
+                      {(
+                        [
+                          { key: "x", label: "ซ้าย–ขวา" },
+                          { key: "y", label: "บน–ล่าง" },
+                        ] as const
+                      ).map(({ key, label }) => (
+                        <label key={key}>
+                          จุดโฟกัส: {label} ({value.imageFocal?.[key] ?? 50}%)
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={value.imageFocal?.[key] ?? 50}
+                            onChange={(e) =>
+                              update({
+                                imageFocal: {
+                                  x: value.imageFocal?.x ?? 50,
+                                  y: value.imageFocal?.y ?? 50,
+                                  [key]: Number(e.target.value),
+                                },
+                              })
+                            }
+                          />
+                        </label>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => update({ imageFocal: { x: 50, y: 50 } })}
+                    >
+                      คืนจุดโฟกัสตรงกลาง
+                    </button>
+                    <p className="editor-help">
+                      ตัวอย่างกรอบภาพหน้าผลงาน ·
+                      ภาพจะครอปเต็มกรอบตามจุดโฟกัสที่เลือก
+                      โดยไม่แก้ไขไฟล์ต้นฉบับ
+                    </p>
                   </div>
                 )}
                 <button
@@ -888,6 +977,7 @@ export default function ContentEditor({
                     onClick={() =>
                       update({
                         image: "",
+                        imageFocal: undefined,
                         ...(value.kind === "service"
                           ? { coverOverride: false }
                           : {}),
@@ -1061,7 +1151,7 @@ export default function ContentEditor({
               <>
                 <div className="editor-publish-row">
                   <label className="field-label">
-                    วันที่
+                    {value.kind === "project" ? "วันที่หลัก" : "วันที่เผยแพร่"}
                     <input
                       type="date"
                       value={value.date}

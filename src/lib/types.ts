@@ -19,12 +19,16 @@ export type Content = {
   image: string;
   gallery: string[];
   coverOverride?: boolean;
+  imageFocal?: { x: number; y: number };
   category: string;
   featured: boolean;
   sortOrder: number;
   date: string;
   eventDate?: string;
   eventDateEnd?: string;
+  hidePublicDate?: boolean;
+  eventDateStatus?: "unknown" | "conflict";
+  eventDateReviewNote?: string;
   sources?: { url: string; publishedAt: string; label: string }[];
   th: Translation;
   en: Translation;

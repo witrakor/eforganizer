@@ -795,12 +795,17 @@ select:focus-visible {
 }
 .project-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 42px 25px;
+}
+@media (min-width: 1024px) {
+  .project-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .project-photo {
   position: relative;
-  height: 320px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 4px;
 }
@@ -813,7 +818,7 @@ select:focus-visible {
   border: 0;
 }
 .project-photo img {
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 .project-photo {
@@ -823,24 +828,33 @@ select:focus-visible {
   transform: none;
 }
 .project-caption {
+  padding-top: 15px;
+}
+.project-caption-meta {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 20px;
-  padding-top: 19px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 12px;
+  row-gap: 2px;
 }
 .project-caption h3 {
-  margin: 0;
+  margin: 8px 0 0;
   font-size: 20px;
 }
-.project-caption .eyebrow {
-  font-size: 8px;
-  margin: 0 0 8px;
+.project-caption-meta .eyebrow {
+  font-size: 9px;
+  margin: 0;
 }
-.project-caption > span {
+.project-caption-meta .content-date {
+  display: inline;
+  margin: 0;
+  white-space: nowrap;
+}
+.project-caption-subtitle {
+  margin: 5px 0 0;
   font-size: 10px;
   color: var(--muted);
-  text-align: right;
+  text-align: left;
 }
 .detail-cover {
   position: relative;
@@ -1768,6 +1782,10 @@ textarea::placeholder {
   }
   .menu-button {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
   }
   .header-cta {
     display: none;
@@ -2187,13 +2205,10 @@ textarea::placeholder {
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  .project-photo {
-    height: 275px;
-  }
   .project-caption h3 {
     font-size: 18px;
   }
-  .project-caption > span {
+  .project-caption-subtitle {
     font-size: 9px;
   }
   .filters {
@@ -2201,7 +2216,8 @@ textarea::placeholder {
   }
   .filters button {
     font-size: 10px;
-    padding: 8px 12px;
+    min-height: 44px;
+    padding: 10px 14px;
   }
   .detail-cover {
     height: 280px;

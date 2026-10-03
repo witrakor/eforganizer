@@ -1,0 +1,21 @@
+{
+  "verifiedAt": "2026-10-02T18:14:50.954Z",
+  "bucket": "eliteflow-media",
+  "source": "/Users/krw/Downloads/ภาพประกอบ/Grand Opening Royal Enfield/RE KHONKAEN (1376).jpg",
+  "media": {
+    "id": "ae7aaf7f-cabe-45d1-97d0-813e921de790",
+    "name": "RE KHONKAEN (1376).jpg",
+    "url": "/api/media/ae7aaf7f-cabe-45d1-97d0-813e921de790",
+    "mime": "image/webp",
+    "size": 556534,
+    "alt": "",
+    "source": "",
+    "driver": "r2",
+    "storageKey": "ae7aaf7f-cabe-45d1-97d0-813e921de790.webp",
+    "createdAt": "2026-10-02 18:14:50",
+    "deletedAt": null
+  },
+  "objectSize": 556534,
+  "httpStatus": 200,
+  "servedBytes": 556534
+}
