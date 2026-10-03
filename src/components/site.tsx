@@ -28,6 +28,7 @@ import { Markdown } from "./markdown";
 export { Markdown } from "./markdown";
 import type { Content, Locale } from "@/lib/types";
 import { Brand } from "./site-header";
+import { LineIcon, LINE_CONTACT_URL } from "./line-contact";
 import ContactForm from "./contact-form";
 import WorkGrid from "./work-grid";
 import PhotoGallery from "./photo-gallery";
@@ -866,6 +867,19 @@ export function Contact({
               <small>{text(l, "โทรหาเรา", "CALL US")}</small>
               <strong>{c.phone}</strong>
             </div>
+          </a>
+          <a
+            className="contact-line"
+            href={LINE_CONTACT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <LineIcon size={24} />
+            <div>
+              <small>LINE</small>
+              <strong>{text(l, "ติดต่อผ่านไลน์", "Contact us on LINE")}</strong>
+            </div>
+            <ArrowUpRight className="contact-line-arrow" size={16} />
           </a>
           <div className="contact-address">
             <MapPin size={20} />

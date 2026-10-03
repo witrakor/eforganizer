@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import type { Locale } from "@/lib/types";
+import { LineIcon, LINE_CONTACT_URL } from "./line-contact";
 export function Brand() {
   return (
     <span className="brand">
@@ -90,6 +91,15 @@ export default function Header({ locale: l }: { locale: Locale }) {
             {l === "th" ? "คุยเรื่องงานของคุณ" : "Let’s talk"}
             <ArrowUpRight size={16} />
           </Link>
+          <a
+            className="header-line"
+            href={LINE_CONTACT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={l === "th" ? "ติดต่อผ่าน LINE" : "Contact us on LINE"}
+          >
+            <LineIcon size={27} />
+          </a>
           <button
             className="menu-button"
             onClick={() => setOpen(!open)}

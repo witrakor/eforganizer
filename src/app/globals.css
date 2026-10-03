@@ -275,6 +275,14 @@ select:focus-visible {
   align-items: center;
   gap: 24px;
 }
+.header-line {
+  width: 34px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 .language {
   font-size: 10px;
   display: flex;
@@ -1022,6 +1030,12 @@ select:focus-visible {
 .contact-details svg {
   color: #9f895b;
   flex-shrink: 0;
+}
+.contact-details > .contact-line {
+  gap: 18px;
+}
+.contact-line-arrow {
+  margin-left: auto;
 }
 .contact-details small {
   display: block;
@@ -1985,6 +1999,35 @@ textarea::placeholder {
   }
   .inquiry-data {
     grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 400px) {
+  .nav-wrap {
+    padding: 0 14px;
+    gap: 8px;
+  }
+  .nav-actions {
+    gap: 8px;
+  }
+  .nav-wrap .brand {
+    font-size: 13px;
+    gap: 6px;
+  }
+  .nav-wrap .brand-mark {
+    font-size: 34px;
+    width: 38px;
+  }
+}
+@media (max-width: 340px) {
+  .nav-wrap .brand {
+    font-size: 11px;
+  }
+  .nav-wrap .brand small {
+    letter-spacing: 1.5px;
+  }
+  .nav-wrap .brand-mark {
+    font-size: 30px;
+    width: 34px;
   }
 }
 @media (max-width: 600px) {
