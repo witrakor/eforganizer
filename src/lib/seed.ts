@@ -1,4 +1,5 @@
 import { eventPhotos, teamPhotos } from "./event-photos";
+import { seoCopy } from "./seo-copy";
 import type { Content, Translation } from "./types";
 import { emptyTranslation } from "./types";
 const tr = (
@@ -552,5 +553,10 @@ for (const item of seedContent) {
   if (item.image === "/media/festival.webp") {
     item.gallery = [...new Set([...item.gallery, item.image])];
     item.image = "/media/festival-conversation.webp";
+  }
+  for (const locale of ["th", "en"] as const) {
+    const copy = seoCopy(item, locale, false);
+    item[locale].seoTitle = copy.title;
+    item[locale].seoDescription = copy.description;
   }
 }

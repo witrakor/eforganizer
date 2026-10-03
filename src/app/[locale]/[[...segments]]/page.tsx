@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { contents, content } from "@/lib/content";
 import type { Locale } from "@/lib/types";
+import { seoCopy } from "@/lib/seo-copy";
 import Header from "@/components/site-header";
 import { Footer } from "@/components/site";
 import {
@@ -51,22 +52,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (locale !== "th" && locale !== "en") return {};
   const item = await resolve(segments);
   if (!item) return {};
-  const c = item[locale];
-  const title = c.title.replace(/\n/g, " ");
+  const copy = seoCopy(item, locale);
   const suffix = segments.length ? "/" + segments.join("/") : "";
   return {
-    title:
-      segments.length === 1 && segments[0] === "services"
-        ? title
-        : c.seoTitle || title,
-    description: c.seoDescription || c.description,
+    title: copy.title,
+    description: copy.description,
     alternates: {
       canonical: `/${locale}${suffix}`,
       languages: { th: `/th${suffix}`, en: `/en${suffix}` },
     },
     openGraph: {
-      title,
-      description: c.description,
+      title: copy.title,
+      description: copy.description,
       locale: locale === "th" ? "th_TH" : "en_US",
       images: item.image
         ? [
