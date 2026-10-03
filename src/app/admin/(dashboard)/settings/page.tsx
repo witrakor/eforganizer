@@ -17,7 +17,7 @@ export default async function Page() {
       <div className="admin-panel">
         <h2>ข้อมูลติดต่อบนเว็บไซต์</h2>
         <p>
-          แก้ไขโทรศัพท์ อีเมล ที่อยู่ และ Facebook ในเนื้อหาหน้าติดต่อ
+          แก้ไขโทรศัพท์ ที่อยู่ และ Facebook ในเนื้อหาหน้าติดต่อ
           ทั้งสองภาษา
         </p>
         {c && (

@@ -8,7 +8,7 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
         <br />
         Unable to load this page.
       </h1>
-      <p>กรุณาลองอีกครั้ง หรือติดต่อ 062 896 5444</p>
+      <p>กรุณาลองอีกครั้ง หรือติดต่อ 0939728758</p>
       <button className="button" onClick={reset}>
         ลองอีกครั้ง / Try again
       </button>

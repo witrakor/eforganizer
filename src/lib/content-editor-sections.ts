@@ -44,8 +44,8 @@ export function contentEditorSections(item: Content): EditorSection[] {
     sections.push({
       id: "contact",
       label: "ช่องทางติดต่อ",
-      description: "โทรศัพท์ อีเมล ที่อยู่ และ Facebook ที่แสดงข้างแบบฟอร์ม",
-      keys: ["phone", "email", "address", "facebook"],
+      description: "โทรศัพท์ ที่อยู่ และ Facebook ที่แสดงข้างแบบฟอร์ม",
+      keys: ["phone", "address", "facebook"],
     });
   if (
     !directory &&

@@ -150,7 +150,6 @@ export const contentSchema = z
   });
 export const inquirySchema = z.object({
   name: z.string().trim().min(2).max(120),
-  email: z.email().max(254),
   phone: z.string().trim().min(6).max(40),
   eventType: z.string().min(1).max(100),
   eventDate: z.string().max(30),

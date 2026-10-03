@@ -103,17 +103,6 @@ export default function ContactForm({
             placeholder="08x xxx xxxx"
           />
         </label>
-        <label className="span-two">
-          {t("อีเมล", "Email")} *
-          <input
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            maxLength={254}
-            placeholder="you@company.com"
-          />
-        </label>
         <label>
           {t("ประเภทงาน", "Event type")} *
           <select name="eventType" required defaultValue={selectedService}>

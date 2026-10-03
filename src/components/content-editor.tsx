@@ -89,7 +89,6 @@ const extraLabels: Record<string, string> = {
   processTitle: "หัวข้อขั้นตอนทำงาน",
   ctaTitle: "หัวข้อชวนติดต่อ",
   phone: "เบอร์โทรศัพท์",
-  email: "อีเมล",
   address: "ที่อยู่",
   facebook: "ลิงก์ Facebook",
   servicesDescription: "คำอธิบายส่วนบริการ",

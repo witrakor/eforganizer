@@ -22,7 +22,6 @@ import {
   Check,
   MapPin,
   Phone,
-  Mail,
   MoveUpRight,
 } from "lucide-react";
 import { Markdown } from "./markdown";
@@ -74,7 +73,6 @@ export function Footer({
         <div>
           <span className="eyebrow">GET IN TOUCH</span>
           <a href={`tel:${String(c.phone).replace(/\s/g, "")}`}>{c.phone}</a>
-          <a href={`mailto:${c.email}`}>{c.email}</a>
           <a href={String(c.facebook)} target="_blank" rel="noreferrer">
             Facebook <ArrowUpRight size={13} />
           </a>
@@ -867,13 +865,6 @@ export function Contact({
             <div>
               <small>{text(l, "โทรหาเรา", "CALL US")}</small>
               <strong>{c.phone}</strong>
-            </div>
-          </a>
-          <a href={`mailto:${c.email}`}>
-            <Mail size={20} />
-            <div>
-              <small>EMAIL</small>
-              <strong>{c.email}</strong>
             </div>
           </a>
           <div className="contact-address">

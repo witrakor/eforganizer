@@ -3,12 +3,14 @@ import { seedContent } from "../src/lib/seed";
 import { passwordHash } from "../src/lib/password";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
+import { migratePublicContact } from "../src/lib/contact-migration";
 await initialize();
 for (const c of seedContent)
   await query(
     "INSERT IGNORE INTO content(id,kind,slug,status,document) VALUES (?,?,?,?,?)",
     [c.id, c.kind, c.slug, c.status, JSON.stringify(c)],
   );
+await migratePublicContact();
 const email = process.env.ADMIN_EMAIL,
   password = process.env.ADMIN_PASSWORD;
 if (!email || !password || password.length < 14)

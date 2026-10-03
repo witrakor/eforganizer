@@ -16,11 +16,10 @@ export async function POST(req: Request) {
     const d = result.data;
     if (d.website) return Response.json({ ok: true });
     await query(
-      "INSERT INTO inquiries(id,name,email,phone,event_type,event_date,location,guests,budget,message,locale) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+      "INSERT INTO inquiries(id,name,email,phone,event_type,event_date,location,guests,budget,message,locale) VALUES (?,?,'',?,?,?,?,?,?,?,?)",
       [
         randomUUID(),
         d.name,
-        d.email,
         d.phone,
         d.eventType,
         d.eventDate,

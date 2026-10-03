@@ -4,7 +4,6 @@ import { bangkokDate } from "@/lib/date";
 type Inquiry = {
   id: string;
   name: string;
-  email: string;
   phone: string;
   event_type: string;
   event_date: string;
@@ -51,7 +50,6 @@ export default function Inquiries({
       (filter === "all" || i.status === filter) &&
       [
         i.name,
-        i.email,
         i.phone,
         i.event_type,
         eventType(i.event_type),
@@ -111,7 +109,7 @@ export default function Inquiries({
       <input
         className="inquiry-search"
         aria-label="ค้นหาข้อความ"
-        placeholder="ค้นหาชื่อ อีเมล โทรศัพท์ ประเภทงาน หรือรายละเอียดงาน…"
+        placeholder="ค้นหาชื่อ โทรศัพท์ ประเภทงาน หรือรายละเอียดงาน…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -130,7 +128,6 @@ export default function Inquiries({
             <div className="inquiry-data">
               {[
                 ["ประเภทงาน", eventType(i.event_type)],
-                ["อีเมล", i.email],
                 ["โทรศัพท์", i.phone],
                 ["วันที่จัดงาน", i.event_date],
                 ["สถานที่", i.location],
@@ -145,9 +142,7 @@ export default function Inquiries({
                 <div key={label}>
                   <small>{label}</small>
                   {value ? (
-                    label === "อีเมล" ? (
-                      <a href={`mailto:${value}`}>{value}</a>
-                    ) : label === "โทรศัพท์" ? (
+                    label === "โทรศัพท์" ? (
                       <a href={`tel:${value.replace(/[^+0-9]/g, "")}`}>
                         {value}
                       </a>

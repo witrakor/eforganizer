@@ -158,8 +158,7 @@ export const seedContent: Content[] = [
       "",
       {
         eyebrow: "LET’S MAKE IT HAPPEN",
-        phone: "062 896 5444",
-        email: "chaiyawet768@gmail.com",
+        phone: "0939728758",
         address: "ขอนแก่น ประเทศไทย",
         facebook: "https://www.facebook.com/profile.php?id=61586237753501",
       },
@@ -170,8 +169,7 @@ export const seedContent: Content[] = [
       "",
       {
         eyebrow: "LET’S MAKE IT HAPPEN",
-        phone: "062 896 5444",
-        email: "chaiyawet768@gmail.com",
+        phone: "0939728758",
         address: "Khon Kaen, Thailand",
         facebook: "https://www.facebook.com/profile.php?id=61586237753501",
       },
@@ -183,12 +181,12 @@ export const seedContent: Content[] = [
     tr(
       "ความเป็นส่วนตัว",
       "ข้อมูลที่คุณส่งมา ใช้เพื่อพูดคุยและวางแผนงานร่วมกัน",
-      "## ข้อมูลที่เราได้รับ\nเมื่อคุณส่งแบบฟอร์ม เราจะได้รับชื่อ อีเมล เบอร์โทร และรายละเอียดเกี่ยวกับงานที่คุณกรอก\n\n## การใช้ข้อมูล\nทีมใช้ข้อมูลเพื่อติดต่อกลับ ประเมินขอบเขตงาน และจัดทำข้อเสนอ เราจะไม่แสดงข้อมูลติดต่อของคุณบนเว็บไซต์\n\n## การจัดเก็บและการติดต่อ\nข้อมูลจัดเก็บในระบบหลังบ้านที่จำกัดการเข้าถึง หากต้องการสอบถาม ขอแก้ไข หรือลบข้อมูล กรุณาติดต่อ chaiyawet768@gmail.com\n\n## คุกกี้\nระบบใช้คุกกี้ที่จำเป็นสำหรับการเข้าสู่ระบบผู้ดูแล เว็บไซต์นี้ไม่ได้ติดตั้งคุกกี้โฆษณาหรือระบบติดตามการตลาด",
+      "## ข้อมูลที่เราได้รับ\nเมื่อคุณส่งแบบฟอร์ม เราจะได้รับชื่อ เบอร์โทร และรายละเอียดเกี่ยวกับงานที่คุณกรอก\n\n## การใช้ข้อมูล\nทีมใช้ข้อมูลเพื่อติดต่อกลับ ประเมินขอบเขตงาน และจัดทำข้อเสนอ เราจะไม่แสดงข้อมูลติดต่อของคุณบนเว็บไซต์\n\n## การจัดเก็บและการติดต่อ\nข้อมูลจัดเก็บในระบบหลังบ้านที่จำกัดการเข้าถึง หากต้องการสอบถาม ขอแก้ไข หรือลบข้อมูล กรุณาโทร 0939728758\n\n## คุกกี้\nระบบใช้คุกกี้ที่จำเป็นสำหรับการเข้าสู่ระบบผู้ดูแล เว็บไซต์นี้ไม่ได้ติดตั้งคุกกี้โฆษณาหรือระบบติดตามการตลาด",
     ),
     tr(
       "Privacy",
       "Your information helps us discuss and plan your event.",
-      "## Information we receive\nThe inquiry form collects your name, email, phone number and the event details you provide.\n\n## How we use it\nOur team uses this information to contact you, assess the scope and prepare a proposal. Contact details are not displayed publicly.\n\n## Storage and requests\nInquiries are stored in an access-controlled administration system. For questions, corrections or deletion requests, contact chaiyawet768@gmail.com.\n\n## Cookies\nEssential cookies are used for administrator authentication. This site does not include advertising cookies or marketing trackers.",
+      "## Information we receive\nThe inquiry form collects your name, phone number and the event details you provide.\n\n## How we use it\nOur team uses this information to contact you, assess the scope and prepare a proposal. Contact details are not displayed publicly.\n\n## Storage and requests\nInquiries are stored in an access-controlled administration system. For questions, corrections or deletion requests, call 0939728758.\n\n## Cookies\nEssential cookies are used for administrator authentication. This site does not include advertising cookies or marketing trackers.",
     ),
   ),
 ];

@@ -17,7 +17,7 @@ before(async () => {
     passwordHash(testAdminPassword),
   ]);
 });
-const testEmail = `test-${randomUUID()}@example.com`;
+const testInquiryPhone = `08${Date.now().toString().slice(-8)}`;
 async function request(
   path: string,
   body?: unknown,
@@ -63,6 +63,15 @@ test("public pages render in both languages and missing content returns 404", as
       assert.ok(!html.includes("NEXT_HTTP_ERROR_FALLBACK;500"));
     }
   assert.equal((await fetch(base + "/th/does-not-exist")).status, 404);
+  for (const locale of ["th", "en"]) {
+    const contact = await (await fetch(`${base}/${locale}/contact`)).text();
+    const privacy = await (await fetch(`${base}/${locale}/privacy`)).text();
+    assert.ok(contact.includes("0939728758"));
+    assert.ok(privacy.includes("0939728758"));
+    assert.ok(!contact.includes('name="email"'));
+    assert.ok(!contact.includes("mailto:"));
+    assert.ok(!privacy.includes("chaiyawet768@gmail.com"));
+  }
 });
 test("unauthenticated management is denied and cross-origin writes are rejected", async () => {
   assert.equal(
@@ -151,8 +160,7 @@ test("admin login, bilingual draft, publish, version conflicts and unpublish", a
 test("inquiry saves to MySQL and admin can update status", async () => {
   const data = {
     name: "Integration test",
-    email: testEmail,
-    phone: "0800000000",
+    phone: testInquiryPhone,
     eventType: "meetings-conferences",
     eventDate: "2026-12-01",
     location: "Khon Kaen",
@@ -167,10 +175,11 @@ test("inquiry saves to MySQL and admin can update status", async () => {
     (await request("/api/inquiries", data, "POST", false)).status,
     200,
   );
-  const rows = await query<any[]>("SELECT * FROM inquiries WHERE email=?", [
-    testEmail,
+  const rows = await query<any[]>("SELECT * FROM inquiries WHERE phone=?", [
+    testInquiryPhone,
   ]);
   assert.equal(rows.length, 1);
+  assert.equal(rows[0].email, "");
   assert.equal(rows[0].message, data.message);
   assert.equal(
     (
@@ -270,7 +279,7 @@ after(async () => {
     await query("DELETE FROM content WHERE id=?", [id]);
     await query("DELETE FROM media WHERE id=?", [id]);
   }
-  await query("DELETE FROM inquiries WHERE email=?", [testEmail]);
+  await query("DELETE FROM inquiries WHERE phone=?", [testInquiryPhone]);
   if (cookie) await request("/api/auth/logout");
   await query("DELETE FROM admins WHERE id=?", [testAdminId]);
   await pool().end();
