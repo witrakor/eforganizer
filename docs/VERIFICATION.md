@@ -34,7 +34,7 @@ Test data and test image files were removed after verification.
 
 - R2 read/write credential scoped to `eliteflow-media`; then switch `MEDIA_DRIVER=r2` and run media migration.
 - Easypanel destination and domain. Deployment files are prepared and tested locally; no external deployment has been performed.
-- Inquiry notifications currently appear in the admin inbox. Email delivery is not configured.
+- LINE inquiry notifications are implemented and verified locally with a real submission to the configured team group. Production requires the LINE environment variables documented in README. The admin inbox retains the brief and delivery status, with a manual retry for failed or interrupted deliveries.
 
 ## Reproduce
 

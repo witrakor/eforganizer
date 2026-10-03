@@ -3,6 +3,7 @@ import { query } from "@/lib/db";
 import { content } from "@/lib/content";
 import Link from "next/link";
 import { storageDriver } from "@/lib/storage";
+import { lineNotificationConfig } from "@/lib/line-notifications";
 export default async function Page() {
   await query("SELECT 1");
   const c = await content("page", "contact", true);
@@ -17,14 +18,24 @@ export default async function Page() {
       <div className="admin-panel">
         <h2>ข้อมูลติดต่อบนเว็บไซต์</h2>
         <p>
-          แก้ไขโทรศัพท์ ที่อยู่ และ Facebook ในเนื้อหาหน้าติดต่อ
-          ทั้งสองภาษา
+          แก้ไขโทรศัพท์ ที่อยู่ และ Facebook ในเนื้อหาหน้าติดต่อ ทั้งสองภาษา
         </p>
         {c && (
           <Link className="button button-small" href={adminContentHref(c)}>
             แก้ไขข้อมูลติดต่อ ↗
           </Link>
         )}
+      </div>
+      <div className="admin-panel">
+        <h2>แจ้งเตือนบรีฟงานผ่าน LINE</h2>
+        <p>
+          {lineNotificationConfig()
+            ? `ตั้งค่าให้ส่งบรีฟใหม่ไปกลุ่ม ${process.env.LINE_NOTIFICATION_GROUP_NAME || "ทีมงาน"} แล้ว`
+            : "ยังไม่ได้ตั้งค่าการแจ้งเตือน LINE"}
+        </p>
+        <Link href="/admin/inquiries" className="button button-small">
+          ดูข้อความและสถานะการส่ง
+        </Link>
       </div>
       <details className="admin-panel">
         <summary>รายละเอียดทางเทคนิค · ฐานข้อมูลและที่เก็บไฟล์</summary>

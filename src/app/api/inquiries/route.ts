@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
+import { after } from "next/server";
 import { sameOrigin, rateLimit, clientAddress } from "@/lib/auth";
-import { query } from "@/lib/db";
+import { pool } from "@/lib/db";
 import { inquirySchema } from "@/lib/validation";
+import {
+  lineNotificationConfig,
+  deliverInquiryNotification,
+} from "@/lib/line-notifications";
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return new Response(null, { status: 403 });
   try {
@@ -15,21 +20,39 @@ export async function POST(req: Request) {
       );
     const d = result.data;
     if (d.website) return Response.json({ ok: true });
-    await query(
-      "INSERT INTO inquiries(id,name,email,phone,event_type,event_date,location,guests,budget,message,locale) VALUES (?,?,'',?,?,?,?,?,?,?,?)",
-      [
-        randomUUID(),
-        d.name,
-        d.phone,
-        d.eventType,
-        d.eventDate,
-        d.location,
-        d.guests,
-        d.budget,
-        d.message,
-        d.locale,
-      ],
-    );
+    const id = randomUUID();
+    const line = lineNotificationConfig();
+    const connection = await pool().getConnection();
+    try {
+      await connection.beginTransaction();
+      await connection.execute(
+        "INSERT INTO inquiries(id,name,email,phone,event_type,event_date,location,guests,budget,message,locale) VALUES (?,?,'',?,?,?,?,?,?,?,?)",
+        [
+          id,
+          d.name,
+          d.phone,
+          d.eventType,
+          d.eventDate,
+          d.location,
+          d.guests,
+          d.budget,
+          d.message,
+          d.locale,
+        ],
+      );
+      if (line)
+        await connection.execute(
+          "INSERT INTO inquiry_line_notifications(inquiry_id,group_id) VALUES (?,?)",
+          [id, line.groupId],
+        );
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+    if (line) after(() => deliverInquiryNotification(id));
     return Response.json({ ok: true });
   } catch {
     return Response.json(

@@ -14,6 +14,7 @@ type Inquiry = {
   locale: string;
   status: string;
   created_at: string;
+  line_status: "pending" | "sending" | "sent" | "failed" | null;
 };
 const labels: Record<string, string> = {
   new: "ใหม่",
@@ -48,13 +49,7 @@ export default function Inquiries({
   const visible = items.filter(
     (i) =>
       (filter === "all" || i.status === filter) &&
-      [
-        i.name,
-        i.phone,
-        i.event_type,
-        eventType(i.event_type),
-        i.message,
-      ]
+      [i.name, i.phone, i.event_type, eventType(i.event_type), i.message]
         .join(" ")
         .toLowerCase()
         .includes(search.trim().toLowerCase()),
@@ -74,6 +69,35 @@ export default function Inquiries({
     } catch {
       setFailed(true);
       setNotice("อัปเดตไม่สำเร็จ กรุณาลองใหม่");
+    } finally {
+      setBusyId("");
+    }
+  }
+  async function retryLine(id: string) {
+    setBusyId(id);
+    setFailed(false);
+    try {
+      const response = await fetch(`/api/admin/inquiries/${id}/line`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error();
+      const result = await response.json();
+      setItems((current) =>
+        current.map((item) =>
+          item.id === id ? { ...item, line_status: result.line_status } : item,
+        ),
+      );
+      setFailed(result.line_status === "failed");
+      setNotice(
+        result.line_status === "sent"
+          ? "ส่งแจ้งเตือนไป LINE แล้ว"
+          : result.line_status === "failed"
+            ? "ยังส่งไม่สำเร็จ กรุณาตรวจการเชื่อมต่อ LINE และโควตาข้อความ"
+            : "ระบบกำลังส่งแจ้งเตือน กรุณารีเฟรชเพื่อตรวจสถานะอีกครั้ง",
+      );
+    } catch {
+      setFailed(true);
+      setNotice("ส่งแจ้งเตือนไม่สำเร็จ กรุณาตรวจการตั้งค่า LINE");
     } finally {
       setBusyId("");
     }
@@ -114,7 +138,7 @@ export default function Inquiries({
         onChange={(e) => setSearch(e.target.value)}
       />
       {visible.map((i) => (
-        <details className="inquiry-card" key={i.id}>
+        <details className="inquiry-card" key={i.id} id={i.id}>
           <summary>
             <div>
               <h3>{i.name}</h3>
@@ -125,6 +149,29 @@ export default function Inquiries({
             <span className={`badge ${i.status}`}>{labels[i.status]}</span>
           </summary>
           <div className="inquiry-body">
+            {i.line_status && (
+              <p>
+                LINE:{" "}
+                {
+                  {
+                    pending: "รอส่งแจ้งเตือน",
+                    sending: "กำลังส่งแจ้งเตือน",
+                    sent: "ส่งแจ้งเตือนแล้ว",
+                    failed: "ส่งไม่สำเร็จ · บรีฟถูกบันทึกไว้แล้ว",
+                  }[i.line_status]
+                }
+                {i.line_status !== "sent" && (
+                  <button
+                    type="button"
+                    className="button button-small"
+                    disabled={busyId === i.id}
+                    onClick={() => retryLine(i.id)}
+                  >
+                    {busyId === i.id ? "กำลังตรวจสอบ…" : "ตรวจสอบ / ลองส่งใหม่"}
+                  </button>
+                )}
+              </p>
+            )}
             <div className="inquiry-data">
               {[
                 ["ประเภทงาน", eventType(i.event_type)],

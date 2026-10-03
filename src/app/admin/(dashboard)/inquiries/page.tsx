@@ -3,7 +3,9 @@ import Inquiries from "@/components/inquiries";
 import { serviceCategories } from "@/lib/service-catalog";
 export default async function Page() {
   const [inquiries, services] = await Promise.all([
-    query<any[]>("SELECT * FROM inquiries ORDER BY created_at DESC"),
+    query<any[]>(
+      "SELECT i.*,n.status AS line_status FROM inquiries i LEFT JOIN inquiry_line_notifications n ON n.inquiry_id=i.id ORDER BY i.created_at DESC",
+    ),
     // Retain readable labels for inquiries about services removed from the site.
     query<{ slug: string; titleTh: string; titleEn: string }[]>(
       "SELECT slug,JSON_UNQUOTE(JSON_EXTRACT(document,'$.th.title')) AS titleTh,JSON_UNQUOTE(JSON_EXTRACT(document,'$.en.title')) AS titleEn FROM content WHERE kind='service'",

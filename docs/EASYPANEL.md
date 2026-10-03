@@ -42,7 +42,7 @@ mount persistent volume ที่ `/app/storage/uploads` (เจ้าของ 
 - health endpoint `/api/health` ต้องตอบ 200 พร้อม `database: connected`
 - เพิ่ม domain และ HTTPS ใน Easypanel แล้วตั้ง SITE_URL ให้ตรง
 - ตรวจ `/th`, `/en`, `/admin` และลองส่งบรีฟจากหน้าติดต่อ
-- ข้อความจะอยู่ในหลังบ้าน ยังไม่ส่งอีเมลแจ้งเตือน
+- ข้อความจะอยู่ในหลังบ้าน หากต้องการแจ้งเข้ากลุ่ม LINE ให้ตั้ง `LINE_CHANNEL_ACCESS_TOKEN`, `LINE_NOTIFICATION_GROUP_ID` และ `LINE_NOTIFICATION_GROUP_NAME` ใน environment ของแอป แล้ว deploy บอตต้องอยู่ในกลุ่มเป้าหมาย การตั้งค่านี้ไม่เปลี่ยน webhook เดิม
 - อย่าส่ง `.env.local`, LOCAL-ACCESS.txt หรือ volume ข้อมูลเข้า Git
 
 ## การนำข้อมูลในเครื่องขึ้น production
